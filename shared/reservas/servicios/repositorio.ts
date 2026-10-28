@@ -1,132 +1,132 @@
 import { cupos, evento } from '../../config';
-import type { ReservasState } from '../tipos';
+import type { Registration, ReservasState } from '../tipos';
+import { alCambiarSesion, haySesion, solicitar } from './http';
 
 /**
- * Dónde viven las reservas. Hoy es el localStorage del navegador, compartido por el sitio
- * público y el panel porque ambos se sirven desde el mismo origen. Con backend, este módulo
- * se sustituye por uno que lea de la API; nadie más toca el almacenamiento.
+ * Dónde viven las reservas: la API. Con sesión de administrador se pide la lista completa
+ * (GET /admin/reservas); en el sitio público solo la disponibilidad (GET /disponibilidad). El
+ * estado se vuelve a pedir al montar, al volver a la pestaña, cada 15 s y tras cada escritura.
  */
 export type RepositorioReservas = {
   /** Instantánea actual; devuelve el mismo objeto mientras nada cambie. */
   read: () => ReservasState;
-  write: (state: ReservasState) => void;
-  /** Avisa de cambios hechos en esta pestaña o en otra; devuelve la función para dejar de oír. */
+  /** Avisa de cambios; devuelve la función para dejar de oír. */
   subscribe: (listener: () => void) => () => void;
+  /** Vuelve a pedir el estado a la API y avisa si cambió. Ante un error conserva el anterior. */
+  refrescar: () => Promise<void>;
 };
 
-export const STORAGE_KEY = 'perija.reservas.v1';
+const REFRESCO_MS = 15 * 1000;
 
-/**
- * Copia de lo que había guardado cuando no se puede leer con el modelo actual (otra versión o
- * JSON dañado). Se guarda antes de empezar vacío para que no se pierda ningún dato.
- */
-export const BACKUP_KEY = 'perija.reservas.respaldo';
-
-export function initialState(): ReservasState {
+/** Estado mientras carga o si la API no responde: valores de la configuración local. */
+function estadoInicial(): ReservasState {
   return {
-    version: 2,
     registrations: [],
     capacity: cupos.iniciales,
     fechaCierre: evento.fechaLimitePago,
-    counters: { registration: 0, payment: 0 },
   };
 }
 
-/** Estados guardados antes de que existiera la fecha de cierre: se completan sin perder nada. */
-function withDefaults(state: ReservasState): ReservasState {
-  return typeof state.fechaCierre === 'string'
-    ? state
-    : { ...state, fechaCierre: evento.fechaLimitePago };
+type RespuestaAdmin = { registrations: Registration[]; capacity: number; fechaCierre: string };
+type RespuestaPublica = { capacity: number; occupied: number; fechaCierre: string };
+
+function esObjeto(valor: unknown): valor is Record<string, unknown> {
+  return typeof valor === 'object' && valor !== null;
 }
 
-function isState(value: unknown): value is ReservasState {
-  if (!value || typeof value !== 'object') return false;
-  const state = value as Partial<ReservasState>;
+function esRespuestaAdmin(valor: unknown): valor is RespuestaAdmin {
   return (
-    state.version === 2 &&
-    Array.isArray(state.registrations) &&
-    typeof state.capacity === 'number' &&
-    typeof state.counters?.registration === 'number' &&
-    typeof state.counters?.payment === 'number'
+    esObjeto(valor) &&
+    Array.isArray(valor.registrations) &&
+    typeof valor.capacity === 'number' &&
+    typeof valor.fechaCierre === 'string'
   );
 }
 
-/** null si el texto no es un estado válido del modelo actual. */
-function parse(raw: string): ReservasState | null {
-  try {
-    const value: unknown = JSON.parse(raw);
-    return isState(value) ? withDefaults(value) : null;
-  } catch {
-    return null;
-  }
+function esRespuestaPublica(valor: unknown): valor is RespuestaPublica {
+  return (
+    esObjeto(valor) &&
+    typeof valor.capacity === 'number' &&
+    typeof valor.occupied === 'number' &&
+    typeof valor.fechaCierre === 'string'
+  );
 }
 
-/** Guarda el texto ilegible en la clave de respaldo; si ya está respaldado, no lo repite. */
-function backup(raw: string) {
-  try {
-    if (localStorage.getItem(BACKUP_KEY) !== raw) localStorage.setItem(BACKUP_KEY, raw);
-  } catch {
-    // Sin almacenamiento no hay dónde respaldar; el estado anterior sigue intacto en su clave.
-  }
-}
-
-function createLocalRepository(): RepositorioReservas {
+function crearRepositorio(): RepositorioReservas {
   const listeners = new Set<() => void>();
-  // Si el navegador bloquea el almacenamiento, el estado vive solo en memoria.
-  let storageUsable = true;
-  let memory: string | null = null;
-  let cachedRaw: string | null | undefined;
-  let cached = initialState();
+  let actual = estadoInicial();
+  let firma = JSON.stringify(actual);
+  // Cada petición lleva un número: solo la última puede cambiar el estado.
+  let ultima = 0;
+  let modoAdmin = false;
+  let temporizador: number | undefined;
+  let dejarDeOirSesion: (() => void) | undefined;
 
-  function currentRaw() {
-    if (!storageUsable) return memory;
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      storageUsable = false;
-      return memory;
-    }
-  }
-
-  function notify() {
+  function notificar() {
     listeners.forEach((listener) => listener());
   }
 
-  function onStorage(event: StorageEvent) {
-    if (event.key === STORAGE_KEY || event.key === null) notify();
+  function aplicar(siguiente: ReservasState) {
+    const nuevaFirma = JSON.stringify(siguiente);
+    if (nuevaFirma === firma) return;
+    firma = nuevaFirma;
+    actual = siguiente;
+    notificar();
+  }
+
+  async function refrescar() {
+    const numero = ++ultima;
+    const admin = haySesion();
+    const respuesta = admin
+      ? await solicitar<unknown>({ metodo: 'GET', ruta: '/api/v1/admin/reservas', admin: true })
+      : await solicitar<unknown>({ metodo: 'GET', ruta: '/api/v1/disponibilidad' });
+    // Una petición más nueva, o un cambio de sesión, deja esta respuesta sin efecto.
+    if (numero !== ultima || admin !== haySesion() || !respuesta.ok) return;
+
+    if (admin && esRespuestaAdmin(respuesta.data)) {
+      const { registrations, capacity, fechaCierre } = respuesta.data;
+      aplicar({ registrations, capacity, fechaCierre });
+    } else if (!admin && esRespuestaPublica(respuesta.data)) {
+      const { capacity, occupied, fechaCierre } = respuesta.data;
+      aplicar({ registrations: [], capacity, fechaCierre, occupied });
+    }
+  }
+
+  function refrescarSiVisible() {
+    if (!document.hidden) void refrescar();
+  }
+
+  /** Al abrir o cerrar la sesión cambia la fuente: se descarta la lista anterior y se vuelve a pedir. */
+  function alCambiarModo() {
+    if (haySesion() === modoAdmin) return;
+    modoAdmin = haySesion();
+    aplicar({ ...actual, registrations: [], occupied: undefined });
+    void refrescar();
   }
 
   return {
-    read() {
-      const raw = currentRaw();
-      if (raw !== cachedRaw) {
-        cachedRaw = raw;
-        const parsed = raw ? parse(raw) : null;
-        if (raw && !parsed) backup(raw);
-        cached = parsed ?? initialState();
-      }
-      return cached;
-    },
-    write(state) {
-      const raw = JSON.stringify(state);
-      memory = raw;
-      try {
-        localStorage.setItem(STORAGE_KEY, raw);
-      } catch {
-        // Sin almacenamiento persistente: se conserva en memoria hasta recargar.
-        storageUsable = false;
-      }
-      notify();
-    },
+    read: () => actual,
+    refrescar,
     subscribe(listener) {
-      if (!listeners.size) window.addEventListener('storage', onStorage);
+      if (!listeners.size) {
+        modoAdmin = haySesion();
+        window.addEventListener('focus', refrescarSiVisible);
+        document.addEventListener('visibilitychange', refrescarSiVisible);
+        temporizador = window.setInterval(refrescarSiVisible, REFRESCO_MS);
+        dejarDeOirSesion = alCambiarSesion(alCambiarModo);
+        void refrescar();
+      }
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
-        if (!listeners.size) window.removeEventListener('storage', onStorage);
+        if (listeners.size) return;
+        window.removeEventListener('focus', refrescarSiVisible);
+        document.removeEventListener('visibilitychange', refrescarSiVisible);
+        window.clearInterval(temporizador);
+        dejarDeOirSesion?.();
       };
     },
   };
 }
 
-export const repositorio = createLocalRepository();
+export const repositorio = crearRepositorio();
