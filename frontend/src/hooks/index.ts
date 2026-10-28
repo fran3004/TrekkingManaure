@@ -25,3 +25,4 @@ export { useReserva } from './reserva/useReserva';
 export { useResumenModal } from './reserva/useResumenModal';
 export { useResumenReserva } from './reserva/useResumenReserva';
 export { useTerminos } from './reserva/useTerminos';
+export { usePerfilTemperatura } from './seguridad/usePerfilTemperatura';

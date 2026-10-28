@@ -1,5 +1,6 @@
 import Icon from '../../../../shared/components/Icon';
 import { abrigoNecesario, medidasSeguridad } from '../../data/seguridad/medidas';
+import PerfilTemperatura from './PerfilTemperatura';
 import './Seguridad.css';
 
 export default function Seguridad() {
@@ -18,22 +19,28 @@ export default function Seguridad() {
         </div>
 
         <div className="safety-grid">
-          <div className="cold reveal">
-            <span className="cold__icon">
-              <Icon name="snow" />
-            </span>
-            <h3>Hace frío en el páramo</h3>
-            <p>
-              Al llegar arriba la temperatura baja y el clima cambia rápido. Lleva abrigo
-              suficiente, ropa térmica, impermeable y calzado adecuado. No vayas improvisando.
-            </p>
-            <div className="cold__list">
-              {abrigoNecesario.map((item) => (
-                <span className="chip" key={item}>
-                  {item}
+          <div className="safety-main">
+            <div className="cold reveal">
+              <div className="cold__head">
+                <span className="cold__icon">
+                  <Icon name="snow" />
                 </span>
-              ))}
+                <h3>Hace frío en el páramo</h3>
+              </div>
+              <p>
+                Arriba la temperatura baja y el clima cambia rápido. Lleva abrigo, ropa térmica,
+                impermeable y calzado adecuado. No vayas improvisando.
+              </p>
+              <div className="cold__list">
+                {abrigoNecesario.map((item) => (
+                  <span className="chip" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
+
+            <PerfilTemperatura />
           </div>
 
           <div className="safety-list reveal" data-delay="1">

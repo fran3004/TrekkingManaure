@@ -1,0 +1,142 @@
+.perfil {
+  container-type: inline-size;
+  border-radius: 26px;
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+  background:
+    radial-gradient(600px 300px at 85% 0%, rgba(120, 190, 255, 0.12), transparent 60%),
+    linear-gradient(160deg, #0a2a33, #031b16);
+  border: 1px solid rgba(160, 220, 255, 0.22);
+}
+.perfil__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.8rem 1.5rem;
+  margin-bottom: 0.2rem;
+}
+.perfil__head h3 {
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  color: #dff2fa;
+  margin-bottom: 0.2rem;
+}
+.perfil__head p {
+  font-size: 0.82rem;
+  color: rgba(223, 242, 250, 0.7);
+}
+.perfil__escala {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  color: rgba(223, 242, 250, 0.8);
+}
+.perfil__escala i {
+  width: 90px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(235, 104, 52), rgb(242, 193, 78), rgb(120, 190, 255));
+}
+.perfil__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+.perfil__rejilla {
+  stroke: rgba(223, 242, 250, 0.14);
+  stroke-dasharray: 3 4;
+}
+.perfil__eje {
+  font-size: 11px;
+  fill: rgba(223, 242, 250, 0.6);
+}
+.perfil__linea {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.perfil__punto {
+  stroke: #031b16;
+  stroke-width: 2.5;
+}
+.perfil__temp {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #dff2fa;
+}
+.perfil__guia {
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-dasharray: 3 3;
+}
+.perfil__tip {
+  fill: #031b16;
+  stroke: rgba(160, 220, 255, 0.45);
+}
+.perfil__tip-t {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #dff2fa;
+}
+.perfil__tip-s {
+  font-size: 11px;
+  fill: rgba(223, 242, 250, 0.7);
+}
+.perfil__paradas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.parada {
+  display: grid;
+  gap: 0.1rem;
+  align-content: start;
+  background: rgba(11, 46, 38, 0.65);
+  border: 1px solid rgba(160, 220, 255, 0.14);
+  border-radius: 14px;
+  padding: 0.55rem 0.65rem;
+}
+.parada small {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dorado);
+}
+.parada strong {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.parada__temp {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #dff2fa;
+  margin-top: 0.15rem;
+}
+.parada__alt {
+  font-size: 0.68rem;
+  color: rgba(253, 248, 223, 0.55);
+}
+.parada p {
+  font-size: 0.72rem;
+  color: rgba(223, 242, 250, 0.8);
+  margin-top: 0.25rem;
+}
+.parada i {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  margin-top: 0.4rem;
+}
+.perfil__nota {
+  margin-top: 0.6rem;
+  font-size: 0.68rem;
+  color: rgba(223, 242, 250, 0.5);
+}
+@container (max-width: 560px) {
+  .perfil__paradas {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+}

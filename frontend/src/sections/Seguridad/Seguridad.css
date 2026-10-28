@@ -1,44 +1,53 @@
 .safety-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr;
   gap: 1.2rem;
   align-items: stretch;
+}
+.safety-main {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
 }
 .cold {
   position: relative;
   border-radius: 26px;
-  padding: clamp(1.8rem, 4vw, 2.6rem);
+  padding: clamp(1.2rem, 3vw, 1.6rem);
   overflow: hidden;
   background:
     radial-gradient(600px 400px at 80% 10%, rgba(120, 190, 255, 0.18), transparent 60%),
     linear-gradient(160deg, #0a2a33, #031b16);
   border: 1px solid rgba(160, 220, 255, 0.22);
 }
+.cold__head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.7rem;
+}
 .cold__icon {
-  width: 58px;
-  height: 58px;
+  flex: none;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  margin-bottom: 1rem;
   background: rgba(160, 220, 255, 0.08);
   border: 1px solid rgba(160, 220, 255, 0.25);
   color: #bfe3f5;
 }
 .cold__icon .ico {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 .cold h3 {
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
   color: #dff2fa;
-  margin-bottom: 0.5rem;
 }
 .cold p {
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   color: rgba(223, 242, 250, 0.75);
-  max-width: 42ch;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.9rem;
 }
 .cold__list {
   display: flex;
@@ -56,7 +65,7 @@
 .safety-list {
   display: grid;
   gap: 0.7rem;
-  align-content: start;
+  grid-auto-rows: 1fr;
 }
 .safety-item {
   display: flex;
