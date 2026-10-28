@@ -20,7 +20,7 @@ export function useHoy() {
   return today;
 }
 
-/** Reservas y capacidad vigentes; se re-renderiza con cualquier cambio, aquí o en otra pestaña. */
+/** Reservas y capacidad vigentes según la API; se re-renderiza con cada cambio que llegue. */
 export function useReservas() {
   const state = useSyncExternalStore(repositorio.subscribe, repositorio.read);
   const today = useHoy();
@@ -29,6 +29,7 @@ export function useReservas() {
     registrations: state.registrations,
     capacity: state.capacity,
     fechaCierre: state.fechaCierre,
+    occupied: state.occupied,
     today,
   };
 }
@@ -40,6 +41,7 @@ export function useCierre() {
 }
 
 export function useDisponibilidad() {
-  const { registrations, capacity } = useReservas();
-  return getAvailability(registrations, capacity);
+  const { registrations, capacity, occupied } = useReservas();
+  // Sin lista de reservas (sitio público) los ocupados vienen del servidor.
+  return getAvailability(registrations, capacity, registrations.length ? undefined : occupied);
 }

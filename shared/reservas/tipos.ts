@@ -123,9 +123,11 @@ export type NewRegistration = Omit<
 export type RegistrationStatus =
   'Por verificar' | 'Saldo pendiente' | 'Vencido' | 'Pagado' | 'Rechazado';
 
-/** Todo lo que persiste el sistema de reservas. */
+/**
+ * Lo que el sistema de reservas obtiene de la API. En el panel llega la lista completa; en el
+ * sitio público solo `occupied`, porque la lista de reservas no se descarga.
+ */
 export type ReservasState = {
-  version: 2;
   registrations: Registration[];
   /** Cupos del páramo: solo los ocupan los corredores que se quedan allá. */
   capacity: number;
@@ -134,8 +136,8 @@ export type ReservasState = {
    * cambia la organización desde el panel.
    */
   fechaCierre: string;
-  /** Contadores de los últimos ids asignados; no dependen de cuántos registros hay. */
-  counters: { registration: number; payment: number };
+  /** Cupos ocupados que informa el servidor; se usa cuando no hay lista de reservas. */
+  occupied?: number;
 };
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string };

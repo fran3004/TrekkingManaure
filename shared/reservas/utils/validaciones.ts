@@ -320,6 +320,7 @@ export function validateNewRegistration(
   capacity: number,
   today: string,
   fechaCierre: string,
+  occupied?: number,
 ): string | null {
   const closedError = validateCierre(today, fechaCierre);
   if (closedError) return closedError;
@@ -377,7 +378,7 @@ export function validateNewRegistration(
   );
   if (repeated) return 'El documento ' + repeated + ' ya tiene una reserva registrada.';
 
-  const { available } = getAvailability(registrations, capacity);
+  const { available } = getAvailability(registrations, capacity, occupied);
   return validateParamo(countParamoPeople(input), available);
 }
 

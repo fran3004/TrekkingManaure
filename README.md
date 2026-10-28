@@ -65,13 +65,13 @@ La configuración de Prettier está en `.prettierrc.json`. El build incluye la c
 
 ## Alcance de esta entrega
 
-El sitio y el panel comparten un único sistema de reservas (`shared/reservas/`), guardado por ahora en el `localStorage` del navegador:
+El sitio y el panel comparten un único sistema de reservas (`shared/reservas/`), que lee y escribe en la API del backend (`VITE_API_URL`, por defecto `http://localhost:8080`; ver `shared/reservas/servicios/`). Nada de las reservas se guarda en el navegador; la sesión del panel vive solo en memoria y se restaura con la cookie de refresh:
 
 1. La persona completa el formulario, revisa el resumen y confirma. La reserva se registra con un código (`PER-0001`…) y con su primer pago esperado en «Por revisar».
 2. Paga por llave Bre-B. En el panel, la organización verifica que el dinero llegó y aprueba o rechaza ese pago. No hay comprobantes: la decisión del panel es la única fuente de verdad.
 3. Al aprobar el primer pago, quien se queda en el páramo (titular o acompañante) ocupa cupo; hotel en Manaure y regreso a casa no gastan cupo. Si se agotan los cupos del páramo, el formulario deshabilita esa estadía y la inscripción sigue abierta. El contador del sitio, el panel y las demás pestañas abiertas se actualizan al instante.
 4. Los saldos se registran desde el detalle de cada participante. Los cupos del páramo (60 al inicio) y la fecha de cierre (9 de noviembre de 2026 al inicio; último día para inscribirse y para pagar el restante) solo cambian desde «Gestión de cupos».
 
-El sistema arranca vacío: no hay datos ni cuentas de ejemplo. Como los datos viven en cada navegador, lo que se reserva en un equipo no aparece en otro hasta conectar el backend.
+El sistema arranca vacío: no hay datos ni cuentas de ejemplo. La cuenta de administración la crea el backend.
 
 La configuración de referencia está en `shared/config/index.ts`. Las imágenes del sitio viven en Cloudinary (carpeta `trekking-manaure/`) y se entregan optimizadas para móvil y PC; las dos aplicaciones usan el mismo catálogo (`shared/data/imagenes.ts`). Cómo agregar o cambiar una imagen: `docs/frontend/imagenes-cloudinary.md`.

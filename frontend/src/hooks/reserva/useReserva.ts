@@ -131,6 +131,7 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
       capacity,
       today,
       cierre.fechaCierre,
+      availability.occupied,
     );
     if (invalid) {
       setError(invalid);

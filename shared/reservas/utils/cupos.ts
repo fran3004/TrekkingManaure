@@ -12,10 +12,15 @@ export type Availability = {
 /**
  * Cupos del páramo. Ocupa cupo cada corredor (titular o acompañante) que se queda en el páramo,
  * de una inscripción con algún pago aprobado. Hotel en Manaure y regreso a casa no gastan cupo.
- * La capacidad la fija la organización desde el panel (60 al inicio).
+ * La capacidad la fija la organización desde el panel (60 al inicio). Si se da `occupiedOverride`
+ * (el sitio público no descarga las reservas), se usa en lugar de contarlas.
  */
-export function getAvailability(registrations: Registration[], capacity: number): Availability {
-  const occupied = countParamoRunners(registrations.filter(holdsSpot));
+export function getAvailability(
+  registrations: Registration[],
+  capacity: number,
+  occupiedOverride?: number,
+): Availability {
+  const occupied = occupiedOverride ?? countParamoRunners(registrations.filter(holdsSpot));
   const available = Math.max(0, capacity - occupied);
 
   return {

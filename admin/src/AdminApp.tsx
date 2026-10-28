@@ -119,13 +119,15 @@ function AdminShell({ sesion, cerrarSesion }: { sesion: Sesion; cerrarSesion: ()
 
 /** Panel de administración: sin sesión vigente solo se muestra el acceso. */
 export default function AdminApp() {
-  const { sesion, cerrarSesion } = useSesion();
+  const { sesion, restaurando, cerrarSesion } = useSesion();
 
+  // Mientras se restaura la sesión no se muestra el acceso, para que no parpadee.
+  if (restaurando && !sesion) return null;
   if (!sesion) return <Login />;
 
   return (
     <AdminUiProvider>
-      <AdminShell key={sesion.token} sesion={sesion} cerrarSesion={cerrarSesion} />
+      <AdminShell key={sesion.iniciadaEn} sesion={sesion} cerrarSesion={cerrarSesion} />
     </AdminUiProvider>
   );
 }
