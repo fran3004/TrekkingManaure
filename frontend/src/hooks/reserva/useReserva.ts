@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   cotizar,
   countHotelNights,
@@ -12,6 +12,10 @@ import {
   type NewRegistration,
   type PreEventHotel,
 } from '../../../../shared/reservas';
+import { contacto } from '../../../../shared/config';
+import { irASeccion } from '../../utils/comun/irASeccion';
+import { buildMessage, whatsappLink } from '../../utils/reserva/mensaje';
+import { ESTADO_VACIO, leerBorrador } from '../../utils/reserva/borrador';
 import { buildNewRegistration } from '../../utils/reserva/nuevaReserva';
 import { describirReserva } from '../../utils/reserva/resumen';
 import type {
@@ -22,6 +26,7 @@ import type {
   ResumenReservaTexto,
 } from '../../types/reserva';
 import { useBloquesProgresivos } from './useBloquesProgresivos';
+import { useBorradorReserva } from './useBorradorReserva';
 
 /** Pasos del envío: revisar el resumen, registrar y confirmar. */
 type Envio = {
@@ -29,14 +34,11 @@ type Envio = {
   reserva: NewRegistration;
   estado: 'revision' | 'enviando' | 'registrada';
   error: string;
+  /** Tras registrar: WhatsApp ya se abrió solo; si no, el resumen muestra el enlace. */
+  whatsappAbierto?: boolean;
 };
 
-const HOTEL_VACIO: HotelFormulario = {
-  activo: false,
-  checkIn: '',
-  checkOut: '',
-  conAcompanante: true,
-};
+const HOTEL_VACIO = ESTADO_VACIO.hotel;
 
 /** Hotel listo para cotizar: activo y con fechas válidas en orden; si no, null. */
 function hotelCotizable(hotel: HotelFormulario, companion: boolean): PreEventHotel | null {
@@ -48,14 +50,17 @@ function hotelCotizable(hotel: HotelFormulario, companion: boolean): PreEventHot
 }
 
 export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
+  // El borrador de una visita anterior (si lo hay) da el punto de partida de todo el formulario.
+  const [inicial] = useState(leerBorrador);
+  const guardado = inicial?.estado ?? ESTADO_VACIO;
   // null = todavía no elegido: la persona debe marcarlo, no viene preseleccionado.
-  const [plan, setPlan] = useState<PlanPago | null>(null);
-  const [planDate, setPlanDate] = useState('');
-  const [companion, setCompanionState] = useState(false);
-  const [companionKit, setCompanionKit] = useState<boolean | null>(null);
-  const [extras, setExtras] = useState<Extra[]>([]);
-  const [hotel, setHotel] = useState<HotelFormulario>(HOTEL_VACIO);
-  const [birthDate, setBirthDate] = useState('');
+  const [plan, setPlan] = useState<PlanPago | null>(guardado.plan);
+  const [planDate, setPlanDate] = useState(guardado.planDate);
+  const [companion, setCompanionState] = useState(guardado.companion);
+  const [companionKit, setCompanionKit] = useState<boolean | null>(guardado.companionKit);
+  const [extras, setExtras] = useState<Extra[]>(guardado.extras);
+  const [hotel, setHotel] = useState<HotelFormulario>(guardado.hotel);
+  const [birthDate, setBirthDate] = useState(inicial?.campos.nacimiento ?? '');
   const [error, setError] = useState('');
   const [envio, setEnvio] = useState<Envio | null>(null);
   const [conditionsOpen, setConditionsOpen] = useState(false);
@@ -66,6 +71,20 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
   const { registrations, capacity, today } = useReservas();
   const availability = useDisponibilidad();
   const cierre = useCierre();
+  const estado = useMemo(
+    () => ({ stay, plan, planDate, companion, companionKit, extras, hotel }),
+    [stay, plan, planDate, companion, companionKit, extras, hotel],
+  );
+  const borrador = useBorradorReserva(formRef, estado, inicial);
+
+  // La estadía vive en la página (también se elige desde la sección de alojamiento): se devuelve
+  // una sola vez al abrir.
+  const estadiaRestaurada = useRef(false);
+  useEffect(() => {
+    if (estadiaRestaurada.current) return;
+    estadiaRestaurada.current = true;
+    if (inicial?.estado.stay) onStay(inicial.estado.stay);
+  }, [inicial, onStay]);
 
   const preEventHotel = hotelCotizable(hotel, companion);
   const quote = cotizar({
@@ -146,35 +165,64 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
     });
   }
 
+  /**
+   * Registra la reserva y abre WhatsApp con sus datos en un solo paso. La pestaña se abre en el
+   * clic, antes de esperar al servidor: abierta después, el navegador la bloquearía como ventana
+   * emergente. Si aun así no se pudo abrir, el resumen ofrece el enlace.
+   */
   async function confirm() {
     if (!envio || envio.estado !== 'revision') return;
+    const ventana = window.open('', '_blank');
+    if (ventana) ventana.opener = null;
     setEnvio({ ...envio, estado: 'enviando', error: '' });
     const result = await reservasApi.crearReserva(envio.reserva);
     if (!result.ok) {
+      ventana?.close();
       setEnvio({ ...envio, estado: 'revision', error: result.error });
       return;
     }
+    // Ya quedó registrada: el borrador no se necesita más y no puede reaparecer al volver.
+    borrador.descartar();
     // El resumen final sale de lo que quedó registrado: código y hora de aceptación incluidos.
+    const resumen = describirReserva(result.data, quote, today);
+    const enlace = whatsappLink(contacto.whatsapp, buildMessage(resumen));
+    if (ventana && enlace) ventana.location.href = enlace;
+    else ventana?.close();
     setEnvio({
       ...envio,
       estado: 'registrada',
-      resumen: describirReserva(result.data, quote, today),
+      resumen,
+      whatsappAbierto: Boolean(ventana && enlace),
     });
   }
 
-  /** Tras registrar, cerrar el resumen deja el formulario listo para otra reserva. */
+  /** Deja el formulario vacío y vuelve a empezar a guardar desde cero. */
+  function reiniciarFormulario() {
+    setPlan(null);
+    setPlanDate('');
+    setCompanionState(false);
+    setCompanionKit(null);
+    setExtras([]);
+    setHotel(HOTEL_VACIO);
+    setBirthDate('');
+    setError('');
+    onStay('');
+    reiniciar();
+    borrador.reanudar();
+    setFormKey((key) => key + 1);
+  }
+
+  /**
+   * Tras registrar, cerrar el resumen deja el formulario listo para otra reserva y lo muestra
+   * desde su inicio: el formulario vacío es mucho más corto y la vista no debe quedar en el vacío.
+   * Si todavía no se registró, lo escrito se guarda como borrador para no tener que repetirlo.
+   */
   function closePreview() {
     if (envio?.estado === 'registrada') {
-      setPlan(null);
-      setPlanDate('');
-      setCompanionState(false);
-      setCompanionKit(null);
-      setExtras([]);
-      setHotel(HOTEL_VACIO);
-      setBirthDate('');
-      onStay('');
-      reiniciar();
-      setFormKey((key) => key + 1);
+      reiniciarFormulario();
+      window.requestAnimationFrame(() => irASeccion('reserva'));
+    } else if (envio?.estado === 'revision') {
+      borrador.guardarAhora();
     }
     if (envio?.estado !== 'enviando') setEnvio(null);
   }
@@ -182,7 +230,14 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
   return {
     formRef,
     formKey,
-    revisar,
+    /** Revisa qué bloques mostrar y guarda el borrador tras cada cambio del formulario. */
+    alCambiar: () => {
+      revisar();
+      borrador.programar();
+    },
+    borradorCampos: borrador.campos,
+    borradorRecuperado: borrador.recuperado,
+    empezarDeNuevo: reiniciarFormulario,
     /** Los bloques del formulario aparecen uno a uno; el índice empieza en 0. */
     isHidden: (bloque: number) => visibles <= bloque,
     today,
@@ -213,6 +268,7 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
     preview: envio?.resumen ?? null,
     previewState: envio?.estado ?? null,
     previewError: envio?.error ?? '',
+    whatsappAbierto: envio?.whatsappAbierto ?? false,
     confirm,
     closePreview,
     conditionsOpen,

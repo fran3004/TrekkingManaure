@@ -48,8 +48,8 @@ export default function Exportar() {
             <Icon name="sheet" /> Descargar Excel (.xlsx)
           </button>
           <p className="admin-notice">
-            El libro incluye las reservas guardadas en este navegador. Cuando el panel se conecte al
-            servidor, exportará las de todos los equipos.
+            El libro incluye todas las reservas registradas en el servidor, sin importar desde qué
+            equipo se hicieron.
           </p>
           <p role="status" className="admin-feedback">
             {exportar.feedback}

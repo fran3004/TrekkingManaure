@@ -96,7 +96,7 @@ export function crearBuscar(contexto: LibroContexto) {
   const sheet = hojaConTitulo(
     hojas.buscar,
     'Buscar inscripción',
-    'Escribe un código (DEMO-001) o un número de documento en la celda amarilla.',
+    'Escribe un código (PER-0001) o un número de documento en la celda amarilla.',
     5,
     { gridLines: false, tabColor: 'F2C14E' },
   );

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import {
   PAIS_PREDETERMINADO,
   detectCountry,
+  digitsOnly,
   getCountry,
   normalizeNumber,
   paises,
@@ -11,6 +12,7 @@ import {
 } from '../../../../shared/reservas';
 import { bandera } from '../../utils/reserva/bandera';
 import { fieldName } from '../../utils/reserva/formulario';
+import { useValorGuardado } from './useValorGuardado';
 
 type Options = {
   prefijo: string;
@@ -27,8 +29,13 @@ type Options = {
  * reglas del país, así el formulario no avanza con un teléfono imposible.
  */
 export function useCampoTelefono({ prefijo, base, tipo, quien }: Options) {
-  const [pais, setPais] = useState<CountryCode>(PAIS_PREDETERMINADO);
-  const [valor, setValor] = useState('');
+  const name = fieldName(prefijo, base);
+  const paisGuardado = useValorGuardado(name + 'Pais');
+  const numeroGuardado = useValorGuardado(name);
+  const [pais, setPais] = useState<CountryCode>(
+    () => getCountry(paisGuardado)?.iso ?? PAIS_PREDETERMINADO,
+  );
+  const [valor, setValor] = useState(() => digitsOnly(numeroGuardado));
   const [abierto, setAbierto] = useState(false);
   const [tocado, setTocado] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -60,7 +67,9 @@ export function useCampoTelefono({ prefijo, base, tipo, quien }: Options) {
   }, [abierto]);
 
   function escribir(event: ChangeEvent<HTMLInputElement>) {
-    const texto = event.target.value;
+    // Solo dígitos; el «+» solo vale al inicio, para escribir el indicativo (+57). Al pegar
+    // «+57 300 123 4567» se quitan los espacios y se detecta el país.
+    const texto = event.target.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
     const deteccion = detectCountry(texto);
     if (deteccion.estado === 'detectado') {
       setPais(deteccion.country);
@@ -75,8 +84,6 @@ export function useCampoTelefono({ prefijo, base, tipo, quien }: Options) {
     setAbierto(false);
     inputRef.current?.focus();
   }
-
-  const name = fieldName(prefijo, base);
 
   return {
     name,

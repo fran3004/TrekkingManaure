@@ -7,6 +7,8 @@ type Props = {
   resumen: ResumenReservaTexto;
   estado: 'revision' | 'enviando' | 'registrada';
   error: string;
+  /** WhatsApp ya se abrió al confirmar: no hace falta ofrecer el enlace. */
+  whatsappAbierto: boolean;
   onConfirm: () => void;
   onBack: () => void;
 };
@@ -24,7 +26,14 @@ function Lista({ filas }: { filas: FilaResumen[] }) {
   );
 }
 
-export default function ResumenModal({ resumen, estado, error, onConfirm, onBack }: Props) {
+export default function ResumenModal({
+  resumen,
+  estado,
+  error,
+  whatsappAbierto,
+  onConfirm,
+  onBack,
+}: Props) {
   const view = useResumenModal(resumen);
 
   return (
@@ -36,6 +45,7 @@ export default function ResumenModal({ resumen, estado, error, onConfirm, onBack
             <small>Código de reserva</small>
             <strong>{view.codigo}</strong>
             <p>{view.confirmacion}</p>
+            {whatsappAbierto && <p>Abrimos WhatsApp con tus datos: envíalos para terminar.</p>}
           </div>
         </div>
       ) : (
@@ -78,7 +88,7 @@ export default function ResumenModal({ resumen, estado, error, onConfirm, onBack
 
       {estado === 'registrada' ? (
         <div className="resumen-acciones">
-          {view.whatsapp && (
+          {view.whatsapp && !whatsappAbierto && (
             <a className="btn btn--primary" href={view.whatsapp} target="_blank" rel="noreferrer">
               Enviar mis datos por WhatsApp <Icon name="whatsapp" />
             </a>
@@ -96,7 +106,8 @@ export default function ResumenModal({ resumen, estado, error, onConfirm, onBack
             disabled={estado === 'enviando'}
             aria-busy={estado === 'enviando'}
           >
-            {estado === 'enviando' ? 'Registrando…' : 'Confirmar reserva'} <Icon name="check" />
+            {estado === 'enviando' ? 'Registrando…' : 'Confirmar y enviar por WhatsApp'}{' '}
+            <Icon name="whatsapp" />
           </button>
           <button
             type="button"

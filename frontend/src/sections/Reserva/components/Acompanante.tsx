@@ -16,7 +16,7 @@ export default function Acompanante(props: Props) {
   return (
     <div className="form-block">
       <div className="form-block__head">
-        <span className="form-block__n">5</span>
+        <span className="form-block__n">4</span>
         <div>
           <h3>Acompañante</h3>
           <small>
@@ -73,7 +73,12 @@ export default function Acompanante(props: Props) {
                 <label htmlFor="acompEstadia">
                   Estadía del acompañante <span className="req">*</span>
                 </label>
-                <select id="acompEstadia" name="acompEstadia" required defaultValue="">
+                <select
+                  id="acompEstadia"
+                  name="acompEstadia"
+                  required
+                  defaultValue={view.stayGuardada}
+                >
                   <option value="" disabled>
                     Selecciona
                   </option>

@@ -53,7 +53,7 @@ export default function CampoTelefono({
           required
           placeholder={view.placeholder}
           autoComplete={autoComplete}
-          maxLength={24}
+          maxLength={16}
           value={view.valor}
           onChange={view.escribir}
           onBlur={view.marcarTocado}

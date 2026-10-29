@@ -4,30 +4,63 @@
 export const tiposDocumento = ['CC', 'CE', 'TI', 'RC', 'Pasaporte', 'PPT'] as const;
 
 /**
- * Formato de cada tipo de documento y edades que admite. Rangos por confirmar con el cliente.
- * CC solo para mayores de edad; TI de 7 a 18 años (quien acaba de cumplir 18 puede tenerla
- * todavía); RC para menores de 7 años.
+ * Formato de cada tipo de documento, tope de caracteres al escribir y edades que admite. Todos son
+ * numéricos salvo el pasaporte. Los patrones y las ayudas son los mismos del catálogo del backend
+ * (tabla tipo_documento): los mensajes de error deben coincidir.
+ * CC de 8 a 10 dígitos sin cero inicial y solo para mayores de edad; TI de 7 a 18 años (quien acaba de
+ * cumplir 18 puede tenerla todavía); RC para menores de 7 años.
  */
 export const reglasDocumento = {
-  CC: { patron: '[0-9]{6,10}', ayuda: 'Entre 6 y 10 dígitos', edadMin: 18, edadMax: null },
-  CE: { patron: '[0-9]{6,10}', ayuda: 'Entre 6 y 10 dígitos', edadMin: null, edadMax: null },
-  TI: { patron: '[0-9]{10,11}', ayuda: '10 u 11 dígitos', edadMin: 7, edadMax: 18 },
-  RC: { patron: '[0-9]{10}', ayuda: '10 dígitos', edadMin: null, edadMax: 7 },
+  CC: {
+    patron: '[1-9][0-9]{7,9}',
+    ayuda: 'Entre 8 y 10 dígitos',
+    tope: 10,
+    soloDigitos: true,
+    edadMin: 18,
+    edadMax: null,
+  },
+  CE: {
+    patron: '[0-9]{6,10}',
+    ayuda: 'Entre 6 y 10 dígitos',
+    tope: 10,
+    soloDigitos: true,
+    edadMin: null,
+    edadMax: null,
+  },
+  TI: {
+    patron: '[0-9]{10,11}',
+    ayuda: '10 u 11 dígitos',
+    tope: 11,
+    soloDigitos: true,
+    edadMin: 7,
+    edadMax: 18,
+  },
+  RC: {
+    patron: '[0-9]{10}',
+    ayuda: '10 dígitos',
+    tope: 10,
+    soloDigitos: true,
+    edadMin: null,
+    edadMax: 7,
+  },
   Pasaporte: {
-    patron: '[A-Za-z0-9]{5,20}',
-    ayuda: 'Entre 5 y 20 letras o números',
+    patron: '[A-Za-z0-9]{6,12}',
+    ayuda: 'Entre 6 y 12 letras o números',
+    tope: 12,
+    soloDigitos: false,
     edadMin: null,
     edadMax: null,
   },
   PPT: {
-    patron: '[A-Za-z0-9]{5,15}',
-    ayuda: 'Entre 5 y 15 letras o números',
+    patron: '[0-9]{5,8}',
+    ayuda: 'Entre 5 y 8 dígitos',
+    tope: 8,
+    soloDigitos: true,
     edadMin: null,
     edadMax: null,
   },
 } as const;
 
-// Lista provisional: pendiente de confirmar con el cliente.
 export const generos = ['Femenino', 'Masculino', 'Otro', 'Prefiero no decirlo'] as const;
 
 export const tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as const;
@@ -69,7 +102,7 @@ export const metodoPago = { value: 'llave-bre-b', label: 'Llave Bre-B' } as cons
 
 /**
  * EPS que se pueden elegir. "Otra" pide el nombre; "No tengo EPS" cubre a quien no está
- * afiliado (por ejemplo, visitantes extranjeros). Lista por confirmar con el cliente.
+ * afiliado (por ejemplo, visitantes extranjeros).
  */
 export const eps = [
   'Nueva EPS',
@@ -94,6 +127,10 @@ export const eps = [
   'Mallamas',
   'Comfachocó',
   'Comfaoriente',
+  'Salud Mía',
+  'SOS (Servicio Occidental de Salud)',
+  'EPS Familiar de Colombia',
+  'AIC (Asociación Indígena del Cauca)',
   'Régimen especial o de excepción',
   'Otra',
   'No tengo EPS',
@@ -132,7 +169,8 @@ export const paises = [
     indicativo: '57',
     ejemplo: '300 123 4567',
     movil: { largos: [10], inicios: ['3'] },
-    fijo: { largos: [10], inicios: ['60'] },
+    // Fijos: 60X + 7 dígitos, con X igual a 1, 2, 4, 5, 6, 7 u 8 (marcación única nacional de la CRC).
+    fijo: { largos: [10], inicios: ['601', '602', '604', '605', '606', '607', '608'] },
   },
   {
     iso: 'VE',
@@ -263,10 +301,15 @@ export const PAIS_PREDETERMINADO = 'CO';
  */
 export const versionTerminos = 'TYC-2026-10-28';
 
-// Patrones HTML. El guion va escapado (\-): sin escapar, el flag v de Chrome invalida la
-// expresión y el campo acepta cualquier valor. No usar paréntesis dentro de los patrones.
-export const patrones = {
-  nombre: "[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' \\-]{2,60}",
-  ciudad: "[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .\\-]{3,60}",
-  telefono: '[0-9 ]{7,20}',
+/**
+ * Largos de los textos del formulario, medidos sobre el texto ya normalizado. Son los mismos del
+ * backend (Textos.java) y de la base de datos (restricciones CHECK de la migración V18). El tope al
+ * escribir es el máximo.
+ */
+export const limites = {
+  nombre: { min: 2, max: 40 },
+  contacto: { min: 5, max: 80 },
+  ciudad: { min: 3, max: 40 },
+  epsOtra: { min: 3, max: 40 },
+  correo: { max: 100 },
 } as const;

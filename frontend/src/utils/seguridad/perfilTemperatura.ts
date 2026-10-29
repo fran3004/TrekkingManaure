@@ -36,11 +36,11 @@ export function formatearAltura(alturaM: number) {
   return `${Math.round(alturaM).toLocaleString('es-CO')} m`;
 }
 
-export function xDeKm(km: number) {
+function xDeKm(km: number) {
   return MARGEN.izq + (km / distanciaKm) * (ANCHO - MARGEN.izq - MARGEN.der);
 }
 
-export function yDeAltura(alturaM: number) {
+function yDeAltura(alturaM: number) {
   return BASE - ((alturaM - ALTURA_MIN) / (ALTURA_MAX - ALTURA_MIN)) * (BASE - MARGEN.arriba);
 }
 

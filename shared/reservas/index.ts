@@ -6,6 +6,7 @@ export * from './utils/cupos';
 export * from './utils/estado';
 export * from './utils/fechas';
 export * from './utils/hotel';
+export * from './utils/normalizacion';
 export * from './utils/telefono';
 export * from './utils/validaciones';
 export { reservasApi } from './servicios/reservasApi';

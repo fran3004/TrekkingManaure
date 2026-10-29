@@ -165,7 +165,7 @@ export function addTable(
   sheet.tables.push({ ...spec, rowCount: data.length });
 }
 
-export function tableRange(table: Table) {
+function tableRange(table: Table) {
   return rangeRef(
     table.row,
     table.column,

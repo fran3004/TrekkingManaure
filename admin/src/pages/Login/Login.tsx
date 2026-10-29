@@ -87,8 +87,8 @@ export default function Login() {
           </button>
         </form>
         <small className="admin-access__note">
-          <Icon name="lock" /> Acceso simulado: entra con cualquier correo y contraseña válidos. La
-          verificación real llegará con el servidor.
+          <Icon name="lock" /> Acceso reservado a la organización. Tu sesión se cierra sola al pasar
+          el tiempo.
         </small>
       </section>
       <section className="admin-access__art" aria-label={evento.nombre}>

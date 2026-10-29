@@ -1,5 +1,6 @@
 import { useDatosSeguridad } from '../../../hooks';
 import CampoTelefono from './CampoTelefono';
+import CampoTexto from './CampoTexto';
 import FichaSalud from './FichaSalud';
 import PreguntaSiNo from './PreguntaSiNo';
 
@@ -42,21 +43,13 @@ export default function DatosSeguridad({ prefijo = '', sufijo = '', responsable 
         </select>
       </div>
       {view.mostrarOtra && (
-        <div className="field">
-          <label htmlFor={ids.epsOtra}>
-            ¿Cuál EPS?{sufijo} {req}
-          </label>
-          <input
-            id={ids.epsOtra}
-            name={ids.epsOtra}
-            required
-            placeholder="Nombre de la EPS"
-            autoComplete="off"
-            maxLength={60}
-            pattern={view.patrones.ciudad}
-            title="Solo letras, de 3 a 60 caracteres"
-          />
-        </div>
+        <CampoTexto
+          id={ids.epsOtra}
+          name={ids.epsOtra}
+          etiqueta={'¿Cuál EPS?' + sufijo}
+          campo={view.campos.epsOtra}
+          placeholder="Nombre de la EPS"
+        />
       )}
 
       <div className="field field--full field-group">
@@ -66,19 +59,13 @@ export default function DatosSeguridad({ prefijo = '', sufijo = '', responsable 
         </strong>
         <small className="field-hint">{view.contacto.ayuda}</small>
       </div>
-      <div className="field">
-        <label htmlFor={ids.emergenciaNombre}>Nombre completo {req}</label>
-        <input
-          id={ids.emergenciaNombre}
-          name={ids.emergenciaNombre}
-          required
-          placeholder="Nombres y apellidos"
-          autoComplete="off"
-          maxLength={120}
-          pattern={view.patronContacto}
-          title="Nombre y apellido, solo letras"
-        />
-      </div>
+      <CampoTexto
+        id={ids.emergenciaNombre}
+        name={ids.emergenciaNombre}
+        etiqueta="Nombre completo"
+        campo={view.campos.contactoNombre}
+        placeholder="Nombres y apellidos"
+      />
       <CampoTelefono
         prefijo={prefijo}
         base="emergenciaTelefono"

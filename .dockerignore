@@ -19,13 +19,8 @@
 # Documentación y archivos que la web no usa.
 docs
 *.md
-state
-
-# La API vive en su propio contexto (./backend); la imagen web no la necesita.
-backend
 
 # Archivos de Docker (no se copian dentro de la imagen).
 Dockerfile
 docker-compose*.yml
 .dockerignore
-db
