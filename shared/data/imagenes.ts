@@ -1,7 +1,6 @@
 import type { ImagePreset } from '../utils/cloudinary';
 
 // Todas las imágenes del sitio viven en Cloudinary bajo esta carpeta.
-// Estructura y forma de agregar fotos: docs/frontend/imagenes-cloudinary.md
 const RAIZ = 'trekking-manaure';
 
 export const imagenes = {

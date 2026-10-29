@@ -22,6 +22,25 @@ export type HotelFormulario = {
   conAcompanante: boolean;
 };
 
+/** Lo que el formulario guarda en estado de React; el resto vive en los campos y se guarda por nombre. */
+export type EstadoBorrador = {
+  stay: Estadia;
+  plan: PlanPago | null;
+  planDate: string;
+  companion: boolean;
+  companionKit: boolean | null;
+  extras: Extra[];
+  hotel: HotelFormulario;
+};
+
+/** Formulario a medias guardado en el navegador. */
+export type BorradorReserva = {
+  guardadoEn: number;
+  /** Valor de cada campo por su name; las respuestas con opción solo guardan la elegida. */
+  campos: Record<string, string>;
+  estado: EstadoBorrador;
+};
+
 /** Una fila etiqueta/valor de la ventana de resumen y del mensaje de WhatsApp. */
 export type FilaResumen = { label: string; value: string };
 

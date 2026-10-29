@@ -1,9 +1,7 @@
-# Dependencias, compilaciones, secretos y comprobantes privados.
+# Dependencias, compilaciones y secretos.
 node_modules/
 dist/
 .env
 .env.*
 !.env.example
 *.tsbuildinfo
-backend/uploads/comprobantes/*
-!backend/uploads/comprobantes/.gitkeep

@@ -2,12 +2,18 @@ import { useState, type ChangeEvent } from 'react';
 import {
   EPS_OTRA,
   eps,
+  limites,
+  normalizarLugar,
+  normalizarNombre,
   parentescos,
   parentescosResponsable,
-  patrones,
+  validateContactNameField,
+  validateEpsOtherField,
 } from '../../../../shared/reservas';
 import { COMPROMISOS } from '../../data/reserva/formulario';
 import { fieldName } from '../../utils/reserva/formulario';
+import { useCampoTexto } from './useCampoTexto';
+import { opcionGuardada, useValorGuardado } from './useValorGuardado';
 
 /**
  * EPS, contacto de emergencia, salud y compromisos de una persona. Si `responsable` es true
@@ -15,11 +21,28 @@ import { fieldName } from '../../utils/reserva/formulario';
  * tutor.
  */
 export function useDatosSeguridad(prefijo: string, responsable: boolean) {
-  const [entidad, setEntidad] = useState('');
-  const [parentesco, setParentesco] = useState('');
   const id = (base: string) => fieldName(prefijo, base);
+  const [entidad, setEntidad] = useState(opcionGuardada(eps, useValorGuardado(id('eps'))));
+  const [parentesco, setParentesco] = useState(
+    opcionGuardada(parentescos, useValorGuardado(id('emergenciaParentesco'))),
+  );
   const opcionesParentesco: readonly string[] = responsable ? parentescosResponsable : parentescos;
   const quien = prefijo ? 'del acompañante' : 'del participante';
+
+  const epsOtra = useCampoTexto({
+    name: id('epsOtra'),
+    tipo: 'epsOtra',
+    max: limites.epsOtra.max,
+    normalizar: normalizarLugar,
+    validar: (valor) => validateEpsOtherField(valor, quien),
+  });
+  const contactoNombre = useCampoTexto({
+    name: id('emergenciaNombre'),
+    tipo: 'nombre',
+    max: limites.contacto.max,
+    normalizar: normalizarNombre,
+    validar: (valor) => validateContactNameField(valor, quien),
+  });
 
   return {
     ids: {
@@ -32,9 +55,7 @@ export function useDatosSeguridad(prefijo: string, responsable: boolean) {
     entidad,
     cambiarEntidad: (event: ChangeEvent<HTMLSelectElement>) => setEntidad(event.target.value),
     mostrarOtra: entidad === EPS_OTRA,
-    patrones,
-    // Mismas letras que un nombre, con espacio para nombre y apellido.
-    patronContacto: patrones.nombre.replace('{2,60}', '{5,120}'),
+    campos: { epsOtra, contactoNombre },
     contacto: {
       titulo: responsable ? 'Responsable legal' : 'Contacto en caso de emergencia',
       ayuda: responsable

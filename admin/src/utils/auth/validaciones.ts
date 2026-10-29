@@ -6,7 +6,7 @@ export type ErroresAcceso = Partial<Record<keyof Credenciales, string>>;
 
 const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export function validarCorreo(value: string) {
+function validarCorreo(value: string) {
   const correo = value.trim();
   if (!correo) return 'Escribe tu correo.';
   if (correo.length > CORREO_MAX || !CORREO.test(correo)) {
@@ -15,7 +15,7 @@ export function validarCorreo(value: string) {
   return undefined;
 }
 
-export function validarClave(value: string) {
+function validarClave(value: string) {
   if (!value) return 'Escribe tu contraseña.';
   if (value.trim() !== value) return 'La contraseña no puede empezar ni terminar con espacios.';
   if (value.length < CLAVE_MIN) {

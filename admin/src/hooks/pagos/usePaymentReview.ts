@@ -51,8 +51,15 @@ function byQueueOrder(a: Item, b: Item) {
 
 function decisionMessage(name: string, review: PaymentReview, nextStatus: string) {
   if (review === 'Aprobado')
-    return 'Pago de ' + name + ' aprobado. Inscripción: ' + nextStatus + '.';
-  if (review === 'Rechazado') return 'Pago de ' + name + ' rechazado. Avísale por WhatsApp.';
+    return (
+      'Pago de ' +
+      name +
+      ' aprobado. Inscripción: ' +
+      nextStatus +
+      '. Se le envía un aviso por correo.'
+    );
+  if (review === 'Rechazado')
+    return 'Pago de ' + name + ' rechazado. Se le envía un aviso por correo.';
   return 'El pago de ' + name + ' volvió a revisión.';
 }
 

@@ -1,5 +1,9 @@
 import {
   EPS_OTRA,
+  normalizarCorreo,
+  normalizarDocumento,
+  normalizarLugar,
+  normalizarNombre,
   normalizeNumber,
   versionTerminos,
   type Companion,
@@ -19,7 +23,7 @@ import {
   type Stay,
 } from '../../../../shared/reservas';
 import type { HotelFormulario } from '../../types/reserva';
-import { fieldName, limpiarTexto } from './formulario';
+import { fieldName } from './formulario';
 
 type Seleccion = {
   stay: Stay;
@@ -34,9 +38,11 @@ type Seleccion = {
 type Lector = (base: string) => string;
 
 // Los valores de los desplegables salen de los catálogos compartidos; si llega algo distinto,
-// la validación de shared/reservas lo rechaza antes de guardar.
+// la validación de shared/reservas lo rechaza antes de guardar. El lector devuelve el texto tal como
+// está en el formulario (sin espacios en los extremos); cada campo de texto aplica después su
+// normalización compartida (shared/reservas/utils/normalizacion.ts), la misma que hace el backend.
 function reader(data: FormData, prefix: string): Lector {
-  return (base: string) => limpiarTexto(String(data.get(fieldName(prefix, base)) || ''));
+  return (base: string) => String(data.get(fieldName(prefix, base)) || '').trim();
 }
 
 /** Respuesta Sí/No con detalle: el detalle se guarda solo si respondió Sí. */
@@ -62,18 +68,18 @@ function readPerson(data: FormData, prefix: string, stay: Stay): Person {
   const read = reader(data, prefix);
   const entity = read('eps') as EpsEntity;
   return {
-    firstName: read('nombres'),
-    lastName: read('apellidos'),
+    firstName: normalizarNombre(read('nombres')),
+    lastName: normalizarNombre(read('apellidos')),
     documentType: read('tipoDocumento') as DocumentType,
-    document: read('documento').toUpperCase(),
+    document: normalizarDocumento(read('documento')),
     birthDate: read('nacimiento'),
     gender: read('genero') as Gender,
     phone: readPhone(read, 'telefono'),
-    email: read('correo').toLowerCase(),
-    city: read('ciudad'),
-    eps: { entity, other: entity === EPS_OTRA ? read('epsOtra') : null },
+    email: normalizarCorreo(read('correo')),
+    city: normalizarLugar(read('ciudad')),
+    eps: { entity, other: entity === EPS_OTRA ? normalizarLugar(read('epsOtra')) : null },
     emergencyContact: {
-      name: read('emergenciaNombre'),
+      name: normalizarNombre(read('emergenciaNombre')),
       phone: readPhone(read, 'emergenciaTelefono'),
       relationship: read('emergenciaParentesco') as Relationship,
     },

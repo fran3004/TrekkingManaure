@@ -101,14 +101,6 @@ function AdminShell({ sesion, cerrarSesion }: { sesion: Sesion; cerrarSesion: ()
             </span>
           </div>
         </header>
-        <div className="admin-preview-banner">
-          <span>
-            <Icon name="info" />
-            <strong>Modo local.</strong> Las reservas del sitio y los cambios del panel se guardan
-            en este navegador y se sincronizan al instante.
-          </span>
-          <span>Sin servidor conectado</span>
-        </div>
         <main id="admin-content" className="admin-content" tabIndex={-1}>
           <Page />
         </main>

@@ -1,64 +1,20 @@
-# Entorno completo del proyecto con un solo comando.
+# Sitio público y panel (/admin), compilados y servidos por nginx.
 #
-#   docker compose up -d --build                 sitio web           -> http://localhost:8080
-#   docker compose --profile db up -d --build    sitio web + PostgreSQL
+#   docker compose up -d --build        -> http://localhost:8081
 #
-# Guía completa: docs/DOCKER.md
+# La API vive en su propio repositorio (Trekkingbackend). Guía: docs/DOCKER.md
 
 name: trekking-manaure
 
 services:
-  # Sitio público y panel (/admin), compilados y servidos por nginx.
   web:
     build:
       context: .
       target: production
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+        VITE_API_URL: ${VITE_API_URL:?Define VITE_API_URL con la URL publica de la API}
         VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME:-meoo7p5s}
     image: trekking-manaure/web:latest
     ports:
-      - '${WEB_PORT:-8080}:8080'
+      - '${WEB_PORT:-8081}:8080'
     restart: unless-stopped
-
-  # Base de datos PostgreSQL. Solo arranca con `--profile db`.
-  db:
-    profiles: ['db']
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-perija}
-      POSTGRES_USER: ${POSTGRES_USER:-perija}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-perija_dev}
-    ports:
-      # Solo accesible desde este computador, nunca desde la red.
-      - '127.0.0.1:${DB_PORT:-5432}:5432'
-    volumes:
-      # Los datos sobreviven a `docker compose down`; solo `down -v` los borra.
-      - db-data:/var/lib/postgresql/data
-      # Los .sql / .sh de esta carpeta se ejecutan UNA vez, al crear la base por primera vez.
-      - ./db/init:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # API (pendiente). La carpeta backend/ está vacía: quien la implemente descomenta este bloque,
-  # añade backend/Dockerfile y activa el bloque `location /api/` de docker/nginx.conf.
-  #
-  # api:
-  #   build: ./backend
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   environment:
-  #     # Dentro de la red de Docker, la base se llama `db` (no `localhost`).
-  #     DATABASE_URL: postgres://${POSTGRES_USER:-perija}:${POSTGRES_PASSWORD:-perija_dev}@db:5432/${POSTGRES_DB:-perija}
-  #     PORT: 3000
-  #   ports:
-  #     - '127.0.0.1:3000:3000'
-  #   restart: unless-stopped
-
-volumes:
-  db-data:

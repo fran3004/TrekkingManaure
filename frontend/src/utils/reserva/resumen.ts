@@ -22,7 +22,7 @@ const siNo = (value: boolean) => (value ? 'Sí' : 'No');
  * Filas de una persona: las mismas para el titular y el acompañante. `responsable` cambia la
  * etiqueta del contacto cuando el titular es menor de edad.
  */
-export function filasPersona(
+function filasPersona(
   person: Person,
   talla: string | null,
   today: string,

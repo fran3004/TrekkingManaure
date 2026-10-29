@@ -41,6 +41,7 @@ export default function PreguntaSiNo({ prefijo, base, pregunta, detalle, exigeSi
         <input
           id={view.detailName}
           name={view.detailName}
+          defaultValue={view.detailSaved}
           required
           minLength={2}
           aria-label={detalle}

@@ -8,14 +8,10 @@ import {
   type PreEventHotel,
 } from '../../../../shared/reservas';
 import { formatMoney } from '../../../../shared/utils/format';
-import { AVISO_PARAMO_AGOTADO, OPCIONES_EXTRA } from '../../data/reserva/opciones';
-import { opcionDesmarcable } from '../../utils/comun/opcionDesmarcable';
-import { opcionesEstadia } from '../../utils/reserva/estadias';
-import type { Estadia, Extra, HotelFormulario } from '../../types/reserva';
+import { OPCIONES_EXTRA } from '../../data/reserva/opciones';
+import type { Extra, HotelFormulario } from '../../types/reserva';
 
 type Options = {
-  stay: Estadia;
-  onStay: (value: Estadia) => void;
   extras: Extra[];
   onExtras: (value: Extra) => void;
   companion: boolean;
@@ -24,13 +20,9 @@ type Options = {
   /** Hotel con fechas válidas para cotizar; null si falta algo. */
   hotelCotizable: PreEventHotel | null;
   today: string;
-  /** Sin cupos en el páramo, esa estadía no se puede elegir. */
-  paramoAgotado: boolean;
 };
 
-export function useOpcionesReserva({
-  stay,
-  onStay,
+export function useExtrasReserva({
   extras,
   onExtras,
   companion,
@@ -38,7 +30,6 @@ export function useOpcionesReserva({
   onHotel,
   hotelCotizable,
   today,
-  paramoAgotado,
 }: Options) {
   const ventana = hotelWindow(today);
   const cargo = hotelCharge({
@@ -49,11 +40,6 @@ export function useOpcionesReserva({
   const noche = formatMoney(precios.hotelNoche);
 
   return {
-    stays: opcionesEstadia(paramoAgotado).map((option) => ({
-      ...option,
-      input: opcionDesmarcable<Estadia>(stay, option.value, onStay, ''),
-    })),
-    avisoParamo: paramoAgotado ? AVISO_PARAMO_AGOTADO : null,
     // El parapente del acompañante solo aparece si hay acompañante.
     extras: OPCIONES_EXTRA.filter((extra) => companion || !extra.conAcompanante).map((extra) => ({
       ...extra,
@@ -73,18 +59,16 @@ export function useOpcionesReserva({
           ' por noche.'
         : noche + ' por noche y por persona.',
       llegada: {
-        value: hotel.checkIn,
+        valor: hotel.checkIn,
         min: ventana.firstCheckIn,
         max: ventana.lastCheckIn,
-        onChange: (event: ChangeEvent<HTMLInputElement>) =>
-          onHotel({ checkIn: event.target.value }),
+        onCambio: (value: string) => onHotel({ checkIn: value }),
       },
       salida: {
-        value: hotel.checkOut,
+        valor: hotel.checkOut,
         min: hotel.checkIn ? addDays(hotel.checkIn, 1) : ventana.firstCheckOut,
         max: ventana.lastCheckOut,
-        onChange: (event: ChangeEvent<HTMLInputElement>) =>
-          onHotel({ checkOut: event.target.value }),
+        onCambio: (value: string) => onHotel({ checkOut: value }),
       },
       conAcompanante: companion
         ? {

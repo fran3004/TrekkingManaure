@@ -248,42 +248,6 @@
   display: block;
 }
 
-.admin-preview-banner {
-  padding: 10px 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  background: rgba(242, 193, 78, 0.045);
-  border-bottom: 1px solid rgba(242, 193, 78, 0.09);
-  font-size: 0.58rem;
-  color: rgba(253, 248, 223, 0.55);
-}
-
-.admin-preview-banner > span:first-child {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-
-.admin-preview-banner > span:last-child {
-  white-space: nowrap;
-  color: var(--tierra);
-  font-size: 0.52rem;
-}
-
-.admin-preview-banner .ico {
-  width: 14px;
-  height: 14px;
-  color: var(--dorado);
-}
-
-.admin-preview-banner strong {
-  font-weight: 500;
-  color: var(--dorado-claro);
-}
-
 .admin-content {
   padding: 38px 36px;
   max-width: 1600px;
@@ -307,15 +271,11 @@
   .admin-workspace {
     margin-left: 225px;
   }
-  .admin-header,
-  .admin-preview-banner {
+  .admin-header {
     padding-inline: 25px;
   }
   .admin-content {
     padding: 30px 25px;
-  }
-  .admin-preview-banner > span:last-child {
-    display: none;
   }
 }
 
@@ -370,10 +330,6 @@
   }
   .admin-user {
     display: none;
-  }
-  .admin-preview-banner {
-    padding: 11px 20px;
-    font-size: 0.54rem;
   }
   .admin-content {
     padding: 30px 20px;

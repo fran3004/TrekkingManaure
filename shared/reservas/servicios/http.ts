@@ -3,13 +3,14 @@
  * lanza: devuelve siempre una respuesta tipada, con el `detail` del ProblemDetail como error.
  */
 
-const URL_POR_DEFECTO = 'http://localhost:8080';
+// Solo en desarrollo hay un valor por defecto; en producción VITE_API_URL es obligatoria (ver Dockerfile).
+const URL_POR_DEFECTO = import.meta.env.DEV ? 'http://localhost:8080' : '';
 const variableUrl: unknown = import.meta.env.VITE_API_URL;
 const URL_BASE = (
   typeof variableUrl === 'string' && variableUrl.trim() ? variableUrl.trim() : URL_POR_DEFECTO
 ).replace(/\/+$/, '');
 
-export const MENSAJE_SIN_CONEXION = 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+const MENSAJE_SIN_CONEXION = 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
 const MENSAJE_GENERICO = 'No se pudo completar la solicitud. Inténtalo de nuevo.';
 
 export type RespuestaHttp<T> =

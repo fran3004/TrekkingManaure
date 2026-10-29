@@ -39,14 +39,16 @@ COPY admin ./admin
 COPY shared ./shared
 COPY frontend ./frontend
 
+# VITE_API_URL es obligatoria: sin ella el sitio llamaría a una API que no existe.
 # Variables VITE_*: Vite las incrusta en el JavaScript al compilar. Por eso son públicas
 # (cualquiera puede leerlas en el navegador) y se pasan como argumentos de build, no como
 # variables de ejecución. Nunca pongas secretos aquí.
-ARG VITE_API_URL=http://localhost:3000
+ARG VITE_API_URL
 ARG VITE_CLOUDINARY_CLOUD_NAME=meoo7p5s
 ENV VITE_API_URL=${VITE_API_URL} \
     VITE_CLOUDINARY_CLOUD_NAME=${VITE_CLOUDINARY_CLOUD_NAME}
 
+RUN test -n "$VITE_API_URL" || (echo "Falta VITE_API_URL" && exit 1)
 WORKDIR /app/frontend
 # `npm run build` = `tsc --noEmit && vite build`: si hay un error de tipos, la imagen no se crea.
 RUN npm run build

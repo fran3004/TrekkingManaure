@@ -14,7 +14,6 @@ export const evento = {
   fechasTexto: '15 y 16 de noviembre',
 } as const;
 
-// El HTML adjunto es la referencia para estos valores de la primera versión visual.
 export const precios = {
   moneda: 'COP',
   total: 350000,
@@ -37,6 +36,6 @@ export const cupos = {
 
 export const contacto = {
   encargada: 'Sandra',
-  whatsapp: '573137317910',
+  whatsapp: '573216889096',
   whatsappConfigurado: true,
 } as const;

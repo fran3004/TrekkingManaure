@@ -4,7 +4,6 @@ import type {
   Eps,
   Health,
   Payment,
-  PaymentConcept,
   Person,
   Registration,
   RegistrationStatus,
@@ -59,7 +58,7 @@ export function epsLabel(eps: Eps) {
 }
 
 /** Solo cuentan los pagos que la organización aprobó tras verificar que llegaron. */
-export function getPaid(registration: Registration) {
+function getPaid(registration: Registration) {
   return registration.payments
     .filter((payment) => payment.review === 'Aprobado')
     .reduce((sum, payment) => sum + payment.amount, 0);
@@ -69,7 +68,7 @@ export function getBalance(registration: Registration) {
   return Math.max(0, getTotal(registration) - getPaid(registration));
 }
 
-export function getPendingPayments(registration: Registration) {
+function getPendingPayments(registration: Registration) {
   return registration.payments.filter((payment) => payment.review === 'Por revisar');
 }
 
@@ -116,12 +115,6 @@ export function getExpectedAmount(registration: Registration, payment: Payment) 
     .filter((item) => item.id !== payment.id && item.review === 'Aprobado')
     .reduce((sum, item) => sum + item.amount, 0);
   return Math.max(0, getTotal(registration) - paidBefore);
-}
-
-/** Concepto de un pago que registra la organización según lo ya aprobado. */
-export function conceptFor(paid: number, amount: number, total: number): PaymentConcept {
-  if (paid > 0) return 'Pago de saldo';
-  return amount >= total ? 'Pago total' : 'Separación de cupo';
 }
 
 export function withReview(
@@ -187,7 +180,7 @@ export function hasHealthAlerts(registration: Registration) {
   return getRunners(registration).some((runner) => getHealthAlerts(runner.health).length > 0);
 }
 
-export function countPeople(registration: Pick<Registration, 'companion'>) {
+function countPeople(registration: Pick<Registration, 'companion'>) {
   return registration.companion ? 2 : 1;
 }
 

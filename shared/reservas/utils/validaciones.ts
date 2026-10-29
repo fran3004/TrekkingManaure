@@ -1,4 +1,3 @@
-import { evento } from '../../config';
 import { formatDate } from '../../utils/format';
 import {
   EDAD_MAXIMA,
@@ -8,6 +7,7 @@ import {
   estadias,
   extras,
   generos,
+  limites,
   parentescos,
   parentescosResponsable,
   planesPago,
@@ -24,8 +24,8 @@ import type {
   PreEventHotel,
   Registration,
 } from '../tipos';
-import { getAvailability, capacityRange } from './cupos';
-import { countParamoPeople, getBalance, getStatus, holdsSpot } from './estado';
+import { getAvailability } from './cupos';
+import { countParamoPeople, getStatus } from './estado';
 import { firstPaymentDay, getAge, isIsoDate, isMinor } from './fechas';
 import { countHotelNights, hotelWindow } from './hotel';
 import { phoneKey, validatePhone } from './telefono';
@@ -33,11 +33,16 @@ import { phoneKey, validatePhone } from './telefono';
 // Reglas de negocio de la reserva. El formulario ayuda con validaciones HTML; estas son las que
 // deciden y el backend debe repetirlas. Cada función devuelve el primer error o null.
 
-const LETRAS = 'A-Za-zÁÉÍÓÚÜÑáéíóúüñ';
-/** Palabras de letras separadas por un espacio, guion o apóstrofe: María José, D'Angelo. */
-const NOMBRE = new RegExp('^[' + LETRAS + "]+(?:[ '\\-][" + LETRAS + ']+)*$');
-/** Como el nombre, pero admite abreviaturas con punto: Sta. Marta. */
-const LUGAR = new RegExp('^[' + LETRAS + "]+\\.?(?:[ '\\-]{1,2}[" + LETRAS + ']+\\.?)*$');
+// Los textos llegan ya normalizados (normalizacion.ts): nombres en MAYÚSCULAS y sin tildes, y lugares
+// sin tildes. La Ñ es una letra aparte y se conserva.
+/** Palabras de letras separadas por un espacio, guion o apóstrofe: MARIA JOSE, D'ANGELO. */
+const NOMBRE = /^[A-ZÑ]+(?:[ '-][A-ZÑ]+)*$/;
+/** Una palabra de un lugar: admite abreviaturas con punto (Sta., D.C.). */
+const PALABRA_LUGAR = '[A-Za-zÑñ]+(?:\\.[A-Za-zÑñ]+)*\\.?';
+/** Como el nombre, pero con las mayúsculas escritas y abreviaturas con punto: Sta. Marta, Bogota D.C. */
+const LUGAR = new RegExp('^' + PALABRA_LUGAR + "(?:[ '-]{1,2}" + PALABRA_LUGAR + ')*$');
+/** Nombre de la EPS «Otra»: solo letras y espacios simples. */
+const EPS_OTRA_TEXTO = /^[A-Za-zÑñ]+(?: [A-Za-zÑñ]+)*$/;
 const CORREO =
   /^[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/;
 
@@ -54,17 +59,74 @@ function normalizeDocument(value: string) {
   return value.replace(/\s+/g, '').toUpperCase();
 }
 
-/** Nombre comparable: sin tildes, en minúsculas y con espacios simples. */
+/**
+ * Nombre comparable: en minúsculas y con espacios simples. Se compara el nombre ya normalizado, así
+ * que la Ñ se respeta: PEÑA no es lo mismo que PENA.
+ */
 function comparableName(value: string) {
-  return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  return value.normalize('NFC').toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
 function fullNameKey(person: Pick<Person, 'firstName' | 'lastName'>) {
   return comparableName(person.firstName + ' ' + person.lastName);
 }
 
-function validName(value: string, min = 2, max = 60) {
+function validName(value: string, min: number, max: number) {
   return value.length >= min && value.length <= max && NOMBRE.test(value);
+}
+
+// Validadores de un solo campo: los usa validatePerson y el formulario (aviso al salir del campo),
+// así el mensaje es el mismo en los dos sitios y el mismo que da el backend. `de` es
+// «del participante» o «del acompañante».
+
+/** Nombres o apellidos, ya normalizados. */
+export function validateNameField(value: string, de: string): string | null {
+  const { min, max } = limites.nombre;
+  return validName(value, min, max)
+    ? null
+    : 'Escribe nombres y apellidos ' +
+        de +
+        ' solo con letras (' +
+        min +
+        ' a ' +
+        max +
+        ' caracteres).';
+}
+
+/** Ciudad, ya normalizada. */
+export function validateCityField(value: string, de: string): string | null {
+  const { min, max } = limites.ciudad;
+  return value.length >= min && value.length <= max && LUGAR.test(value)
+    ? null
+    : 'Escribe la ciudad ' + de + ' solo con letras.';
+}
+
+/** Nombre de la EPS «Otra», ya normalizado. */
+export function validateEpsOtherField(value: string, de: string): string | null {
+  const { min, max } = limites.epsOtra;
+  return value.length >= min && value.length <= max && EPS_OTRA_TEXTO.test(value)
+    ? null
+    : 'Escribe el nombre de la EPS ' + de + '.';
+}
+
+/** Nombre y apellido del contacto de emergencia, ya normalizado. */
+export function validateContactNameField(value: string, de: string): string | null {
+  const { min, max } = limites.contacto;
+  return validName(value, min, max) && value.split(' ').length >= 2
+    ? null
+    : 'Escribe nombre y apellido del contacto de emergencia ' + de + '.';
+}
+
+/** Formato del número de documento según su tipo (sin mirar la edad), ya normalizado. */
+export function validateDocumentFormat(
+  type: DocumentType,
+  value: string,
+  de: string,
+): string | null {
+  const rule = reglasDocumento[type];
+  return new RegExp('^(?:' + rule.patron + ')$').test(value)
+    ? null
+    : 'El documento ' + de + ' no es válido: ' + rule.ayuda.toLowerCase() + '.';
 }
 
 /** Detalle opcional (enfermedad, alergia, discapacidad): null, o de 2 a 200 caracteres. */
@@ -78,7 +140,7 @@ export function documentRule(type: DocumentType) {
 
 export function validateEmail(email: string, quien: string): string | null {
   if (!email) return 'Escribe el correo electrónico ' + quien + '.';
-  if (email.length > 254 || email.includes('..') || !CORREO.test(email)) {
+  if (email.length > limites.correo.max || email.includes('..') || !CORREO.test(email)) {
     return 'Revisa el correo electrónico ' + quien + '.';
   }
   const domain = email.slice(email.indexOf('@') + 1);
@@ -93,9 +155,8 @@ function validateDocument(person: Person, quien: Quien, today: string): string |
     return 'Elige un tipo de documento válido ' + quien.de + '.';
   }
   const rule = documentRule(person.documentType);
-  if (!new RegExp('^(?:' + rule.patron + ')$').test(person.document)) {
-    return 'El documento ' + quien.de + ' no es válido: ' + rule.ayuda.toLowerCase() + '.';
-  }
+  const formatError = validateDocumentFormat(person.documentType, person.document, quien.de);
+  if (formatError) return formatError;
 
   const age = getAge(person.birthDate, today);
   if (rule.edadMin !== null && age < rule.edadMin) {
@@ -124,9 +185,9 @@ function validateDocument(person: Person, quien: Quien, today: string): string |
 }
 
 function validatePerson(person: Person, quien: Quien, today: string): string | null {
-  if (!validName(person.firstName) || !validName(person.lastName)) {
-    return 'Escribe nombres y apellidos ' + quien.de + ' solo con letras (2 a 60 caracteres).';
-  }
+  const nameError =
+    validateNameField(person.firstName, quien.de) ?? validateNameField(person.lastName, quien.de);
+  if (nameError) return nameError;
   if (
     !isIsoDate(person.birthDate) ||
     person.birthDate > today ||
@@ -142,24 +203,20 @@ function validatePerson(person: Person, quien: Quien, today: string): string | n
   if (phoneError) return phoneError;
   const emailError = validateEmail(person.email, quien.de);
   if (emailError) return emailError;
-  if (!LUGAR.test(person.city) || person.city.length < 3 || person.city.length > 60) {
-    return 'Escribe la ciudad ' + quien.de + ' solo con letras.';
-  }
+  const cityError = validateCityField(person.city, quien.de);
+  if (cityError) return cityError;
 
   if (!includes(eps, person.eps.entity)) return 'Elige la EPS ' + quien.de + '.';
   if (person.eps.entity === EPS_OTRA) {
-    const other = person.eps.other ?? '';
-    if (other.length < 3 || other.length > 60 || !LUGAR.test(other)) {
-      return 'Escribe el nombre de la EPS ' + quien.de + '.';
-    }
+    const otherError = validateEpsOtherField(person.eps.other ?? '', quien.de);
+    if (otherError) return otherError;
   } else if (person.eps.other !== null) {
     return 'Revisa la EPS ' + quien.de + '.';
   }
 
   const contact = person.emergencyContact;
-  if (!validName(contact.name, 5, 120) || contact.name.split(' ').length < 2) {
-    return 'Escribe nombre y apellido del contacto de emergencia ' + quien.de + '.';
-  }
+  const contactNameError = validateContactNameField(contact.name, quien.de);
+  if (contactNameError) return contactNameError;
   if (fullNameKey(person) === comparableName(contact.name)) {
     return 'El contacto de emergencia ' + quien.de + ' debe ser otra persona.';
   }
@@ -251,7 +308,7 @@ function validateDistinct(titular: Person, companion: Companion): string | null 
   return null;
 }
 
-export function validatePreEventHotel(
+function validatePreEventHotel(
   hotel: PreEventHotel,
   hasCompanion: boolean,
   today: string,
@@ -293,7 +350,7 @@ function activeDocuments(registrations: Registration[], today: string) {
 }
 
 /** Las inscripciones y los pagos del restante se cierran después de la fecha de cierre. */
-export function validateCierre(today: string, fechaCierre: string): string | null {
+function validateCierre(today: string, fechaCierre: string): string | null {
   return today > fechaCierre
     ? 'Las inscripciones cerraron el ' + formatDate(fechaCierre) + '.'
     : null;
@@ -385,68 +442,4 @@ export function validateNewRegistration(
 /** El titular es menor y la organización aún no recibe la autorización de su responsable. */
 export function needsGuardianAuthorization(registration: Registration, today: string) {
   return isMinor(registration.birthDate, today) && !registration.guardianAuthorized;
-}
-
-/**
- * Aprobar un pago exige la autorización del responsable si el titular es menor. Aprobar el
- * primer pago le asigna sus cupos del páramo: solo se permite si caben. Quien va a hotel o
- * regresa a casa no necesita cupo. Rechazar o devolver a revisión siempre se permite.
- */
-export function validateApproval(
-  registration: Registration,
-  registrations: Registration[],
-  capacity: number,
-  today: string,
-): string | null {
-  if (needsGuardianAuthorization(registration, today)) {
-    return 'El titular es menor de edad: falta la autorización firmada por su responsable.';
-  }
-  if (holdsSpot(registration)) return null;
-  const others = registrations.filter((item) => item.id !== registration.id);
-  const { available } = getAvailability(others, capacity);
-  const people = countParamoPeople(registration);
-  return available < people
-    ? 'No hay cupos en el páramo para confirmar esta inscripción (' +
-        people +
-        ' en páramo, ' +
-        available +
-        ' libres). Cambia los cupos del páramo en Gestión de cupos.'
-    : null;
-}
-
-export function validateRejection(reason: string | null) {
-  return reason && reason.trim() ? null : 'Indica el motivo del rechazo.';
-}
-
-/** Pago que registra la organización: entero, positivo y sin superar el saldo. */
-export function validateManualPayment(registration: Registration, amount: number) {
-  const balance = getBalance(registration);
-  if (!Number.isInteger(amount) || amount <= 0) return 'Escribe un monto válido.';
-  if (amount > balance) return 'El monto supera el saldo pendiente.';
-  return null;
-}
-
-export function validateCapacity(value: number, registrations: Registration[]) {
-  const { occupied } = getAvailability(registrations, value);
-  const { min } = capacityRange(occupied);
-  if (!Number.isInteger(value)) return 'Los cupos del páramo deben ser un número entero.';
-  if (value < min) {
-    return occupied > 0
-      ? 'Los cupos del páramo no pueden ser menos que los ' + occupied + ' ya ocupados.'
-      : 'Debe haber al menos 1 cupo en el páramo.';
-  }
-  return null;
-}
-
-/**
- * Fecha de cierre que fija la organización: entre la apertura de inscripciones y la víspera del
- * evento. Puede quedar en el pasado para cerrar antes.
- */
-export function validateFechaCierre(value: string): string | null {
-  if (!isIsoDate(value)) return 'Elige una fecha de cierre válida.';
-  if (value < evento.fechaAperturaInscripciones) {
-    return 'La fecha de cierre no puede ser anterior a la apertura de inscripciones.';
-  }
-  if (value >= evento.fechas[0]) return 'La fecha de cierre debe ser antes del evento.';
-  return null;
 }

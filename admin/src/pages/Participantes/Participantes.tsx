@@ -51,7 +51,7 @@ export default function Participantes() {
         <ParticipantTable rows={participantes.rows} empty={participantes.empty} />
         <div className="admin-panel-foot">
           <span>{participantes.resultLabel}</span>
-          <span>Guardado en este navegador</span>
+          <span>Sincronizado con el servidor</span>
         </div>
       </article>
     </>

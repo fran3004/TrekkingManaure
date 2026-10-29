@@ -1,6 +1,6 @@
 import { precios } from '../../config';
 import { etiquetasExtra } from '../data/catalogos';
-import type { Extra, PaymentConcept, PaymentPlan, PreEventHotel } from '../tipos';
+import type { Extra, PaymentPlan, PreEventHotel } from '../tipos';
 import { countHotelNights, countHotelPeople } from './hotel';
 
 export type Charge = { label: string; amount: number };
@@ -24,7 +24,7 @@ export type Cotizacion = {
   saldo: number;
 };
 
-export function companionPrice(kit: boolean) {
+function companionPrice(kit: boolean) {
   return kit ? precios.acompananteConKit : precios.acompanante;
 }
 
@@ -81,12 +81,8 @@ export function getTotal(seleccion: Seleccion) {
 }
 
 /** Lo que se paga al reservar según el plan; sin plan elegido se muestra el total. */
-export function getUpfront(plan: PaymentPlan | null, total: number) {
+function getUpfront(plan: PaymentPlan | null, total: number) {
   return plan === 'apartado' ? Math.min(precios.inscripcion, total) : total;
-}
-
-export function upfrontConcept(plan: PaymentPlan): PaymentConcept {
-  return plan === 'apartado' ? 'Separación de cupo' : 'Pago total';
 }
 
 /** Cotización del formulario y del resumen: total, lo que se paga ahora y el restante. */
