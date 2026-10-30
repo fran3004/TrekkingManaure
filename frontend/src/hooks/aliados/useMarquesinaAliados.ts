@@ -26,10 +26,13 @@ export function useMarquesinaAliados() {
     let movido = false; // true si el gesto fue un arrastre y no un toque sobre un logo
     let cuadroId = 0;
     let previo = performance.now();
+    let visible = false;
 
     const limitar = (valor: number) =>
       Math.max(-VELOCIDAD_MAXIMA, Math.min(VELOCIDAD_MAXIMA, valor));
 
+    // Solo dentro del callback del ResizeObserver: ahí el diseño ya está calculado y leer offsetLeft
+    // no obliga al navegador a recalcular la página (antes se medía al montar y costaba ~50 ms).
     const medir = () => {
       const tarjetas = pista.children;
       const primera = tarjetas[0] as HTMLElement | undefined;
@@ -38,6 +41,10 @@ export function useMarquesinaAliados() {
     };
 
     const cuadro = (ahora: number) => {
+      if (!visible) {
+        cuadroId = 0;
+        return;
+      }
       const dt = Math.min((ahora - previo) / 1000, 0.05);
       previo = ahora;
       if (!arrastrando) {
@@ -96,20 +103,28 @@ export function useMarquesinaAliados() {
       velocidad = limitar(velocidad - evento.deltaX * 5);
     };
 
-    medir();
     const observador = new ResizeObserver(medir);
     observador.observe(caja);
+    // La cinta está lejos de la portada: solo se anima mientras se ve.
+    const vigia = new IntersectionObserver(([entrada]) => {
+      visible = entrada.isIntersecting;
+      if (visible && !cuadroId) {
+        previo = performance.now();
+        cuadroId = requestAnimationFrame(cuadro);
+      }
+    });
+    vigia.observe(caja);
     caja.addEventListener('pointerdown', alBajar);
     caja.addEventListener('pointermove', alMover);
     caja.addEventListener('pointerup', alSoltar);
     caja.addEventListener('pointercancel', alSoltar);
     caja.addEventListener('click', alHacerClic, true);
     caja.addEventListener('wheel', alRodar, { passive: false });
-    cuadroId = requestAnimationFrame(cuadro);
 
     return () => {
       cancelAnimationFrame(cuadroId);
       observador.disconnect();
+      vigia.disconnect();
       caja.removeEventListener('pointerdown', alBajar);
       caja.removeEventListener('pointermove', alMover);
       caja.removeEventListener('pointerup', alSoltar);

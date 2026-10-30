@@ -1,6 +1,6 @@
 # Trekking Desafío Perijá 13K
 
-Sitio público y panel de administración del Trekking Desafío Perijá 13K (Manaure, Cesar), hechos con React, TypeScript y Vite. Consumen la API REST del backend (repositorio `Trekkingbackend`).
+Sitio público y panel de administración del Trekking Desafío Perijá 13K (Manaure, Cesar), hechos con React, TypeScript y Vite. El código usa la API de React, pero el bundle lleva Preact con `preact/compat` (`@preact/preset-vite`), mucho más liviano; no uses APIs exclusivas de React 19 (`use`, `useActionState`, `<form action>`, `ref` como prop de componentes). Consumen la API REST del backend (repositorio `Trekkingbackend`).
 
 ## Organización
 
