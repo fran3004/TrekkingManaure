@@ -1,14 +1,49 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-CO">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#031B16" />
+    <title>Trekking Desafío Perijá 13K | 28 y 29 nov · Manaure, Cesar</title>
     <meta
       name="description"
-      content="Trekking Desafío Perijá 13K en Manaure, Cesar. 28 y 29 de noviembre: recorrido, kit, estadía y reserva de cupo."
+      content="Camina 13 km por la Serranía del Perijá hasta el páramo, en Manaure, Cesar. 28 y 29 de noviembre de 2026: kit, estadía y experiencias. Aparta tu cupo con $50.000."
     />
-    <link rel="preconnect" href="https://res.cloudinary.com" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#031B16" />
+    <meta name="application-name" content="Trekking Perijá 13K" />
+    <meta name="apple-mobile-web-app-title" content="Perijá 13K" />
+    <link rel="canonical" href="https://manaurevive.com/" />
+
+    <!-- Vista previa al compartir el enlace (WhatsApp, Facebook, Instagram, X, LinkedIn). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Trekking Desafío Perijá 13K" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:url" content="https://manaurevive.com/" />
+    <meta property="og:title" content="Trekking Desafío Perijá 13K · 28 y 29 de noviembre" />
+    <meta
+      property="og:description"
+      content="13 km por la Serranía del Perijá con llegada al páramo, en Manaure, Cesar. Kit, estadía y experiencias. Cupos limitados: reserva el tuyo."
+    />
+    <meta property="og:image" content="https://manaurevive.com/og-image.jpg" />
+    <meta property="og:image:secure_url" content="https://manaurevive.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Caminantes subiendo la montaña en la Serranía del Perijá con el logo del Trekking Desafío Perijá 13K"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Trekking Desafío Perijá 13K · 28 y 29 de noviembre" />
+    <meta
+      name="twitter:description"
+      content="13 km por la Serranía del Perijá con llegada al páramo, en Manaure, Cesar. Cupos limitados: reserva el tuyo."
+    />
+    <meta name="twitter:image" content="https://manaurevive.com/og-image.jpg" />
+
+    <!-- Íconos: favicon.ico (48 y 96 px) es el que leen Google y los navegadores antiguos. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48 96x96" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
     <link
       rel="icon"
       type="image/png"
@@ -23,25 +58,75 @@
       href="/favicon-claro-32.png"
       media="(prefers-color-scheme: light)"
     />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="/favicon-192.png"
-      media="(prefers-color-scheme: dark)"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="/favicon-claro-192.png"
-      media="(prefers-color-scheme: light)"
-    />
-    <link rel="apple-touch-icon" href="/favicon-192.png" />
-    <title>Trekking Desafío Perijá 13K · Manaure, Cesar</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+
+    <!-- Datos estructurados: nombre del sitio y ficha del evento para los buscadores. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://manaurevive.com/#sitio",
+            "name": "Trekking Desafío Perijá 13K",
+            "alternateName": ["Manaure Vive", "Desafío Perijá 13K"],
+            "url": "https://manaurevive.com/",
+            "inLanguage": "es-CO"
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://manaurevive.com/#organizacion",
+            "name": "Trekking Desafío Perijá 13K",
+            "url": "https://manaurevive.com/",
+            "logo": "https://manaurevive.com/icon-512.png"
+          },
+          {
+            "@type": "SportsEvent",
+            "name": "Trekking Desafío Perijá 13K",
+            "description": "Recorrido de 13 km por la Serranía del Perijá con llegada al páramo, en Manaure, Cesar. Incluye kit, opciones de estadía y experiencias de cuatrimoto y parapente.",
+            "sport": "Trekking",
+            "startDate": "2026-11-28T04:00:00-05:00",
+            "endDate": "2026-11-29",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+            "image": ["https://manaurevive.com/og-image.jpg"],
+            "url": "https://manaurevive.com/",
+            "location": {
+              "@type": "Place",
+              "name": "Restaurante El Sabor, Villa Adelaida",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Manaure",
+                "addressRegion": "Cesar",
+                "addressCountry": "CO"
+              }
+            },
+            "organizer": { "@id": "https://manaurevive.com/#organizacion" },
+            "offers": {
+              "@type": "Offer",
+              "name": "Inscripción con kit completo",
+              "price": "350000",
+              "priceCurrency": "COP",
+              "availability": "https://schema.org/LimitedAvailability",
+              "validFrom": "2026-10-28",
+              "url": "https://manaurevive.com/#reserva"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Trekking Desafío Perijá 13K</h1>
+      <p>
+        13 km por la Serranía del Perijá con llegada al páramo, en Manaure, Cesar. 28 y 29 de
+        noviembre de 2026. Activa JavaScript para ver el recorrido, los precios y reservar tu cupo.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
