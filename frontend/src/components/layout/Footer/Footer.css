@@ -51,7 +51,8 @@ footer {
   padding-top: 1.4rem;
   border-top: 1px solid rgba(253, 248, 223, 0.08);
   font-size: 0.7rem;
-  color: rgba(253, 248, 223, 0.4);
+  /* 0,65 deja el texto pequeño por encima de 4,5:1 sobre el fondo del pie (WCAG AA). */
+  color: rgba(253, 248, 223, 0.65);
 }
 .wa-float {
   position: fixed;

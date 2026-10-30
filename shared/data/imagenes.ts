@@ -18,9 +18,11 @@ export const aliadoId = (nombre: string) => `${RAIZ}/aliados/${nombre}`;
 
 // Anchos pensados para el tamaño real en pantalla (móvil y PC) y pantallas de alta densidad.
 export const presets = {
-  // Precargada desde frontend/index.html: si cambian estos anchos o sizes, actualizar allí también.
+  // Precargada desde frontend/index.html: si cambian anchos, calidad o sizes, actualizar allí también.
   portada: {
     widths: [480, 640, 750, 960, 1280, 1776],
+    // Va detrás de degradados y máscara: eco ahorra ~15-30 KB por tamaño sin diferencia visible.
+    quality: 'auto:eco',
     sizes: '(max-width: 1024px) 100vw, 68vw',
   },
   galeriaMiniatura: {

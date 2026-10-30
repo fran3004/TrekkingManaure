@@ -30,7 +30,7 @@ En producción esta imagen no se levanta con el `docker-compose.yml` de este rep
 - Un solo origen (`https://<dominio>`): Caddy termina TLS, envía `/api/*` a la API y el resto a este contenedor (puerto 8080, sin publicar).
 - La imagen se construye con `VITE_API_URL=https://<dominio>`; el backend tiene `CORS_ORIGIN=https://<dominio>`.
 - Caddy añade HSTS y la CSP del sitio (imágenes de `res.cloudinary.com` y `flagcdn.com`).
-- `docker/nginx.conf` entrega `index.html` para cualquier ruta de la aplicación (`/`, `/admin`), cachea un año los archivos con hash de `/assets/` y no cachea `index.html`.
+- `docker/nginx.conf` entrega `index.html` en `/` y `admin.html` en `/admin` (con `X-Robots-Tag: noindex`), responde 404 en rutas que no existen, cachea un año `/assets/` (con hash) y `/fonts/`, y no cachea los HTML.
 
 Pasos completos (VPS, DNS, `.env`, copias de seguridad): sección «Producción (VPS Linux)» del README del backend.
 

@@ -1,26 +1,8 @@
-// Un solo punto de entrada: /admin carga el panel y cualquier otra ruta, el sitio público.
-// Cada uno trae su propio CSS, así que solo se carga el de la aplicación visitada.
+// Entrada del sitio público (index.html). El panel tiene la suya (admin.tsx, servida en /admin), así
+// que aquí todo se importa directo: el CSS va como <link> en el HTML y no hay cadenas de import().
+// Mismo orden que antes: primero la aplicación (con el CSS de sus secciones), luego el global.
 import { createRoot } from 'react-dom/client';
+import App from './App';
+import './styles/global.css';
 
-const esPanel = /^\/admin(\/|$)/.test(location.pathname);
-
-async function montar() {
-  const root = createRoot(document.getElementById('root')!);
-
-  if (esPanel) {
-    const robots = document.createElement('meta');
-    robots.name = 'robots';
-    robots.content = 'noindex, nofollow';
-    document.head.append(robots);
-    const { default: AdminApp } = await import('../../admin/src/AdminApp');
-    root.render(<AdminApp />);
-    return;
-  }
-
-  // Mismo orden que antes: primero la aplicación (con el CSS de sus secciones), luego el global.
-  const { default: App } = await import('./App');
-  await import('./styles/global.css');
-  root.render(<App />);
-}
-
-montar();
+createRoot(document.getElementById('root')!).render(<App />);

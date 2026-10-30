@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perijá Admin</title>
+    <!-- El panel no se indexa (nginx también envía X-Robots-Tag: noindex en /admin). -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#031B16" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48 96x96" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!-- Fuentes de la pantalla de acceso; deben coincidir con shared/styles/fonts.css. -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/bebas-neue-400-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-400-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-600-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-700-latin.woff2"
+      crossorigin
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/admin.tsx"></script>
+  </body>
+</html>

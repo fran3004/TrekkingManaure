@@ -9,7 +9,7 @@ export type ImagePreset = {
   // limit: reduce sin recortar ni ampliar. fill: recorta a `aspectRatio` centrando lo importante.
   crop?: 'limit' | 'fill';
   aspectRatio?: string;
-  quality?: 'auto' | 'auto:best' | 'auto:low';
+  quality?: 'auto' | 'auto:best' | 'auto:eco' | 'auto:low';
 };
 
 export function cloudinaryUrl(publicId: string, width: number, preset: ImagePreset): string {

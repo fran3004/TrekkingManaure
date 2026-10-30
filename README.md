@@ -21,11 +21,11 @@ npm run dev --prefix frontend
 ```
 
 - Sitio público: http://localhost:5173/
-- Panel: http://localhost:5173/admin (no hay enlace en el sitio; se escribe en la barra de direcciones).
+- Panel: http://localhost:5173/admin (también enlazado en el pie del sitio, «Administración»).
 
 `VITE_API_URL` (en `frontend/.env`) es la dirección de la API; en desarrollo es `http://localhost:8080` si no se define. La API debe tener el origen del front en `CORS_ORIGIN`. El acceso al panel usa el correo y la contraseña del administrador que crea el backend (`ADMIN_EMAIL` y `ADMIN_PASSWORD`).
 
-Al publicar, el hosting debe responder `index.html` también para `/admin` (reescritura de SPA); la configuración de nginx de este repositorio ya lo hace.
+El sitio y el panel son dos páginas: `frontend/index.html` y `frontend/admin.html`. Al publicar, el hosting debe responder `admin.html` para `/admin`; la configuración de nginx de este repositorio ya lo hace (y `vite`/`vite preview` también).
 
 ## Producción
 

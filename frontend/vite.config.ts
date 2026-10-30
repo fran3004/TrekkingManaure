@@ -1,56 +1,28 @@
-import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// main.tsx carga el sitio con import() para que su CSS no se mezcle con el del panel. Sin ayuda,
-// el navegador solo descubre esos archivos cuando index.js termina de bajar y ejecutarse; este
-// plugin los anuncia desde el HTML (modulepreload y preload) para pedirlos en paralelo.
-const MODULOS_DEL_SITIO = [/[\\/]src[\\/]App\.tsx$/, /[\\/]src[\\/]styles[\\/]global\.css$/];
+// Dos páginas: el sitio (index.html) y el panel (admin.html). Cada una trae solo su JavaScript y su
+// CSS. En producción nginx entrega admin.html para /admin; este plugin hace lo mismo en `vite` y en
+// `vite preview`.
+const RUTA_PANEL = /^\/admin(?:[/?#]|$)/;
 
-function precargarSitio(): Plugin {
+function rutaDelPanel(): Plugin {
+  // El proyecto no trae los tipos de Node: basta con saber que la petición tiene `url`.
+  const reescribir = (req: { url?: string }, _res: unknown, next: () => void) => {
+    if (req.url && RUTA_PANEL.test(req.url)) req.url = '/admin.html';
+    next();
+  };
   return {
-    name: 'precargar-sitio',
-    apply: 'build',
-    transformIndexHtml: {
-      order: 'post',
-      handler(_html, ctx) {
-        const chunks = Object.values(ctx.bundle ?? {}).flatMap((salida) =>
-          salida.type === 'chunk' ? [salida] : [],
-        );
-        const scripts = new Set<string>();
-        const estilos = new Set<string>();
-        for (const chunk of chunks) {
-          const id = chunk.facadeModuleId ?? '';
-          if (!MODULOS_DEL_SITIO.some((patron) => patron.test(id))) continue;
-          scripts.add(chunk.fileName);
-          for (const importado of chunk.imports) {
-            if (!chunks.find((otro) => otro.fileName === importado)?.isEntry)
-              scripts.add(importado);
-          }
-          chunk.viteMetadata?.importedCss.forEach((css) => estilos.add(css));
-        }
-        // Un import() de solo CSS (styles/global.css) no deja chunk de JavaScript: queda como asset.
-        for (const salida of Object.values(ctx.bundle ?? {})) {
-          if (salida.type === 'asset' && salida.names.includes('global.css'))
-            estilos.add(salida.fileName);
-        }
-        const tags: HtmlTagDescriptor[] = [];
-        estilos.forEach((href) =>
-          tags.push({ tag: 'link', attrs: { rel: 'preload', as: 'style', href: '/' + href } }),
-        );
-        scripts.forEach((href) =>
-          tags.push({
-            tag: 'link',
-            attrs: { rel: 'modulepreload', crossorigin: true, href: '/' + href },
-          }),
-        );
-        return tags;
-      },
-    },
+    name: 'ruta-del-panel',
+    configureServer: (server) => void server.middlewares.use(reescribir),
+    configurePreviewServer: (server) => void server.middlewares.use(reescribir),
   };
 }
 
 export default defineConfig({
-  plugins: [react(), precargarSitio()],
+  plugins: [react(), rutaDelPanel()],
   resolve: { dedupe: ['react', 'react-dom'] },
   server: { port: 5173, strictPort: true, fs: { allow: ['..'] } },
+  // Rutas relativas a frontend/, desde donde corre `npm run build` (también en el Dockerfile).
+  build: { rolldownOptions: { input: { sitio: 'index.html', panel: 'admin.html' } } },
 });
