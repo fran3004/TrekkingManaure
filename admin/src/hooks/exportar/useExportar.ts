@@ -6,12 +6,11 @@ import { downloadBlob } from '../../utils/exportar/descarga';
 import { crearLibroGestion } from '../../utils/exportar/libro/crearLibro';
 
 export function useExportar() {
-  const { registrations, today, capacity, fechaCierre } = useReservas();
+  const { registrations, today, capacity, occupied, paramo, fechaCierre } = useReservas();
   const [filter, setFilter] = useState('Todos');
   const [feedback, setFeedback] = useState('');
-  const summaries = registrations
-    .map((registration) => summarize(registration, today))
-    .filter((summary) => filter === 'Todos' || summary.status === filter);
+  const all = registrations.map((registration) => summarize(registration, today));
+  const summaries = all.filter((summary) => filter === 'Todos' || summary.status === filter);
   const runners = countRunners(summaries.map((summary) => summary.registration));
   const payments = summaries.reduce(
     (sum, summary) => sum + summary.registration.payments.length,
@@ -27,20 +26,27 @@ export function useExportar() {
     const blob = crearLibroGestion({
       summaries,
       today,
-      capacity,
       fechaCierre,
       filterLabel: filter,
+      carrera: { capacity, occupied },
+      paramo,
+      pagina: {
+        inscripciones: all.length,
+        recaudado: all.reduce((sum, summary) => sum + summary.paid, 0),
+        pagosPorRevisar: all.reduce((sum, summary) => sum + summary.pending.length, 0),
+      },
     });
     downloadBlob('perija-gestion-' + today + '.xlsx', blob);
     setFeedback(
       'Se descargó el libro con ' +
         plural(summaries.length, 'inscripción', 'inscripciones') +
-        '. Ábrelo en Excel para ver fórmulas, filtros y gráficos.',
+        '. Ábrelo en Excel: la hoja Cómo usar explica cómo agregar datos a mano.',
     );
   }
 
   return {
     sheets: contenidoLibro,
+    sheetsLabel: contenidoLibro.length + ' hojas conectadas entre sí',
     filter,
     changeFilter,
     filterOptions: ['Todos', ...statusOrder],
@@ -49,7 +55,6 @@ export function useExportar() {
       { label: 'Corredores', value: runners },
       { label: 'Pagos', value: payments },
     ],
-    canDownload: summaries.length > 0,
     download,
     feedback,
   };

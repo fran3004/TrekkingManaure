@@ -3,31 +3,54 @@ import type { RegistrationStatus } from '../../../../shared/reservas';
 
 export const hojas = {
   resumen: 'Resumen',
+  guia: 'Cómo usar',
   buscar: 'Buscar',
   inscripciones: 'Inscripciones',
   pagos: 'Pagos',
   corredores: 'Corredores',
-  tarifas: 'Tarifas',
+  configuracion: 'Configuración',
+  listas: 'Listas',
 } as const;
+
+/** Filas amarillas en blanco al final de cada tabla para registrar datos a mano. */
+export const filasLibres = { inscripciones: 40, pagos: 60, corredores: 40 } as const;
+
+/** Prefijo del código de una inscripción agregada a mano en el libro: MAN- y su documento. */
+export const prefijoManual = 'MAN-';
+
+export const textoCompleto = '✓ Completo';
 
 export const contenidoLibro = [
   {
     hoja: hojas.resumen,
-    descripcion: 'Indicadores, 5 gráficos, ingresos por concepto, tallas y próximos cobros.',
+    descripcion:
+      'Indicadores, cupos de la carrera y cupos del páramo, gráficos, ingresos, tallas y cobros.',
   },
-  { hoja: hojas.buscar, descripcion: 'Ficha completa al escribir un código o documento.' },
+  {
+    hoja: hojas.guia,
+    descripcion: 'Pasos para agregar inscripciones, pagos y salud a mano, y el control de datos.',
+  },
+  {
+    hoja: hojas.buscar,
+    descripcion: 'Ficha completa y sus pagos al escribir un código o documento.',
+  },
   {
     hoja: hojas.inscripciones,
-    descripcion: 'Tabla con filtros, totales, estados y saldos calculados con fórmulas.',
+    descripcion:
+      'Una fila por reserva y filas amarillas libres; total, saldo y estado se calculan solos.',
   },
   {
     hoja: hojas.pagos,
-    descripcion: 'Pagos por llave Bre-B; cambiar su revisión recalcula todo el libro.',
+    descripcion:
+      'Pagos por llave Bre-B y filas libres para registrar más; cada uno se revisa solo.',
   },
-  { hoja: hojas.corredores, descripcion: 'Una fila por corredor: estadía, kit, talla y salud.' },
   {
-    hoja: hojas.tarifas,
-    descripcion: 'Precios, fechas y capacidad editables que alimentan las fórmulas.',
+    hoja: hojas.corredores,
+    descripcion: 'Una fila por persona: estadía, kit, talla y salud, con filas libres.',
+  },
+  {
+    hoja: hojas.configuracion,
+    descripcion: 'Fechas, precios y cupos vigentes de la página, comparados con el libro.',
   },
 ];
 
@@ -104,7 +127,6 @@ export const estilosLibro: Record<string, StyleDef> = {
     border: 'superior',
     align: { horizontal: 'center' },
   },
-  porcentaje: { numFmt: '0%', align: { horizontal: 'center' } },
   porcentajeTotal: {
     numFmt: '0%',
     fill: 'EFE6C8',
@@ -147,12 +169,6 @@ export const estilosLibro: Record<string, StyleDef> = {
     font: { bold: true, size: 20, color: colores.verde },
     align: tarjetaTexto,
   },
-  kpiMonedaAlerta: {
-    ...tarjeta,
-    numFmt: moneda,
-    font: { bold: true, size: 20, color: colores.rojo },
-    align: tarjetaTexto,
-  },
   kpiValorAlerta: {
     ...tarjeta,
     numFmt: '0',
@@ -177,15 +193,9 @@ export const estilosLibro: Record<string, StyleDef> = {
     font: { size: 9, color: colores.gris },
     align: tarjetaTexto,
   },
-  notaConSaldo: {
+  notaVencidos: {
     ...tarjeta,
-    numFmt: '[=1]0" inscripción con saldo";0" inscripciones con saldo"',
-    font: { size: 9, color: colores.gris },
-    align: tarjetaTexto,
-  },
-  notaInscripciones: {
-    ...tarjeta,
-    numFmt: '[=1]0" inscripción";0" inscripciones"',
+    numFmt: moneda + '" en saldos vencidos"',
     font: { size: 9, color: colores.gris },
     align: tarjetaTexto,
   },
@@ -195,7 +205,13 @@ export const estilosLibro: Record<string, StyleDef> = {
     font: { size: 9, color: colores.gris },
     align: tarjetaTexto,
   },
-  notaOcupados: {
+  notaReservas: {
+    ...tarjeta,
+    numFmt: '[=1]0" reserva activa";0" reservas activas"',
+    font: { size: 9, color: colores.gris },
+    align: tarjetaTexto,
+  },
+  notaCuposParamo: {
     ...tarjeta,
     numFmt: '[=1]0" cupo ocupado";0" cupos ocupados"',
     font: { size: 9, color: colores.gris },
@@ -245,9 +261,57 @@ export const estilosLibro: Record<string, StyleDef> = {
     font: { bold: true },
     align: { horizontal: 'left', indent: 1, vertical: 'center' },
   },
-  parametro: { fill: colores.arena, border: 'entrada', numFmt: moneda, font: { bold: true } },
-  parametroFecha: { fill: colores.arena, border: 'entrada', numFmt: fecha, font: { bold: true } },
-  parametroEntero: { fill: colores.arena, border: 'entrada', numFmt: '0', font: { bold: true } },
+  // Celdas de las filas libres: el amarillo indica dónde escribir.
+  entradaTexto: { fill: colores.arena, border: 'fina' },
+  entradaCentro: { fill: colores.arena, border: 'fina', align: { horizontal: 'center' } },
+  entradaFecha: {
+    fill: colores.arena,
+    border: 'fina',
+    numFmt: fecha,
+    align: { horizontal: 'center' },
+  },
+  entradaEntero: {
+    fill: colores.arena,
+    border: 'fina',
+    numFmt: '0',
+    align: { horizontal: 'center' },
+  },
+  entradaMoneda: { fill: colores.arena, border: 'fina', numFmt: moneda },
+  // Valores vigentes de la página: no se escriben, solo se consultan.
+  configTexto: { fill: colores.crema, border: 'fina', font: { bold: true }, align: { indent: 1 } },
+  configFecha: { fill: colores.crema, border: 'fina', numFmt: fecha, font: { bold: true } },
+  configMoneda: { fill: colores.crema, border: 'fina', numFmt: moneda, font: { bold: true } },
+  configEntero: {
+    fill: colores.crema,
+    border: 'fina',
+    numFmt: '0',
+    font: { bold: true },
+    align: { horizontal: 'center' },
+  },
+  revisar: { font: { size: 9 }, align: { vertical: 'center' } },
+  enlace: { font: { bold: true, underline: true, color: '1155CC' }, align: { indent: 1 } },
+  pasoNumero: {
+    fill: colores.verde,
+    font: { bold: true, size: 14, color: colores.dorado },
+    align: { horizontal: 'center', vertical: 'center' },
+  },
+  pasoTitulo: {
+    font: { bold: true, size: 12, color: colores.verde },
+    align: { vertical: 'center' },
+  },
+  pasoTexto: { align: { wrap: true, vertical: 'top', indent: 1 } },
+  aviso: {
+    fill: 'FCE4D6',
+    font: { bold: true, color: '9C4A06' },
+    align: { wrap: true, vertical: 'center', indent: 1 },
+  },
+  contador: {
+    fill: colores.crema,
+    border: 'fina',
+    numFmt: '0',
+    font: { bold: true, size: 13, color: colores.verde },
+    align: { horizontal: 'center', vertical: 'center' },
+  },
 };
 
 export const dxfLibro: Record<string, DxfDef> = {
@@ -258,4 +322,6 @@ export const dxfLibro: Record<string, DxfDef> = {
   rechazado: { fill: 'EDEDED', color: '595959', bold: true },
   alerta: { fill: 'FDE9E7', color: '9C0006' },
   saldoTexto: { color: 'C65911', bold: true },
+  completo: { color: '006100' },
+  pendiente: { fill: 'FCE4D6', color: '9C4A06', bold: true },
 };
