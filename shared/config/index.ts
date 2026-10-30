@@ -1,8 +1,8 @@
 export const evento = {
   nombre: 'Trekking Desafío Perijá 13K',
   lugar: 'Manaure, Cesar, Colombia',
-  fechas: ['2026-11-15', '2026-11-16'],
-  largada: '2026-11-15T04:00:00-05:00',
+  fechas: ['2026-11-28', '2026-11-29'],
+  largada: '2026-11-28T04:00:00-05:00',
   horaSalidaTexto: '4:00 a.m.',
   distanciaKm: 13,
   encuentro: 'Restaurante El Sabor, Villa Adelaida',
@@ -11,7 +11,7 @@ export const evento = {
   // organización la cambia desde el panel (Gestión de cupos); esta es solo la inicial.
   fechaLimitePago: '2026-11-09',
   fechaAperturaInscripciones: '2026-10-28',
-  fechasTexto: '15 y 16 de noviembre',
+  fechasTexto: '28 y 29 de noviembre',
 } as const;
 
 export const precios = {
