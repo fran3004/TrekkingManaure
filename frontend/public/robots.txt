@@ -1,7 +1,11 @@
 # Directivas de rastreo del sitio público. El panel (/admin) se puede rastrear para que los
 # buscadores lean su cabecera X-Robots-Tag: noindex y no lo muestren en los resultados.
+# Google renderiza la página con JavaScript: necesita leer la disponibilidad y la configuración
+# públicas para ver los cupos y las fechas. El resto de la API queda fuera.
 User-agent: *
 Allow: /
+Allow: /api/v1/disponibilidad
+Allow: /api/v1/config
 Disallow: /api/
 
 Sitemap: https://manaurevive.com/sitemap.xml
