@@ -140,19 +140,7 @@ export default function ReviewPanel({ review }: { review: PaymentReviewView }) {
         </form>
       )}
 
-      {!panel.isPending && (
-        <div className="review-decided">
-          <p>{panel.decidedText}</p>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={review.reopen}
-            disabled={review.busy}
-          >
-            Devolver a revisión
-          </button>
-        </div>
-      )}
+      {!panel.isPending && <p className="review-decided">{panel.decidedText}</p>}
 
       <button
         type="button"

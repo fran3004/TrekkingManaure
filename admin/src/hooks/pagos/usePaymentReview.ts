@@ -23,6 +23,9 @@ type Filter = PaymentReview | 'Todos';
 
 type Item = { registration: Registration; payment: Payment };
 
+/** Lo que la encargada decide sobre un pago por revisar; solo "Deshacer" lo regresa a revisión. */
+type Decision = Exclude<PaymentReview, 'Por revisar'>;
+
 type LastAction = {
   registrationId: string;
   paymentId: string;
@@ -49,7 +52,7 @@ function byQueueOrder(a: Item, b: Item) {
     : b.payment.date.localeCompare(a.payment.date);
 }
 
-function decisionMessage(name: string, review: PaymentReview, nextStatus: string) {
+function decisionMessage(name: string, review: Decision, nextStatus: string) {
   if (review === 'Aprobado')
     return (
       'Pago de ' +
@@ -58,9 +61,7 @@ function decisionMessage(name: string, review: PaymentReview, nextStatus: string
       nextStatus +
       '. Se le envía un aviso por correo.'
     );
-  if (review === 'Rechazado')
-    return 'Pago de ' + name + ' rechazado. Se le envía un aviso por correo.';
-  return 'El pago de ' + name + ' volvió a revisión.';
+  return 'Pago de ' + name + ' rechazado. Se le envía un aviso por correo.';
 }
 
 function amountCheck(registration: Registration, payment: Payment) {
@@ -133,7 +134,10 @@ function panelView(item: Item, today: string) {
     decidedText:
       payment.review === 'Aprobado'
         ? 'Este pago ya se aprobó y cuenta en el saldo de la inscripción.'
-        : 'Motivo del rechazo: ' + (payment.rejectionReason || 'sin especificar') + '.',
+        : // El motivo de caducidad del servidor y el texto libre pueden traer ya su punto final.
+          'Motivo del rechazo: ' +
+          (payment.rejectionReason || 'sin especificar').replace(/\.+$/, '') +
+          '.',
   };
 }
 
@@ -190,7 +194,7 @@ export function usePaymentReview() {
     }
   }
 
-  async function decide(review: PaymentReview, rejectionReason: string | null = null) {
+  async function decide(review: Decision, rejectionReason: string | null = null) {
     if (!current || busy) return;
     const { registration, payment } = current;
     const next = getStatus(withReview(registration, payment.id, review), today);
@@ -214,8 +218,7 @@ export function usePaymentReview() {
       reason: payment.rejectionReason,
       message: decisionMessage(fullName(registration), review, next),
     });
-    setSelectedId(review === 'Por revisar' ? payment.id : null);
-    if (review === 'Por revisar' && filter !== 'Todos') setFilter('Por revisar');
+    setSelectedId(null);
     resetRejection();
   }
 
@@ -300,7 +303,6 @@ export function usePaymentReview() {
     busy,
     verifyText: 'Confirma en la llave Bre-B que el dinero llegó antes de aprobar.',
     approve: () => decide('Aprobado'),
-    reopen: () => decide('Por revisar'),
     footLabel: items.length + ' pagos en esta vista · los más antiguos primero',
     detailOpen: detailOpen && !!current,
     detailTitle: current ? fullName(current.registration) : 'Inscripción',
