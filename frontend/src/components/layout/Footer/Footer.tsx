@@ -57,7 +57,7 @@ export default function Footer() {
           <span>© 2026 {evento.nombre}. Todos los derechos reservados.</span>
           <span>
             Reservas gestionadas por el equipo organizador ·{' '}
-            <a className="footer-admin" href="/admin">
+            <a className="footer-admin" href="/admin" rel="nofollow">
               <Icon name="lock" /> Administración
             </a>
           </span>

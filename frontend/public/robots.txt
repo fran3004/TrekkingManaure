@@ -1,3 +1,7 @@
-# Directivas de rastreo del sitio público.
+# Directivas de rastreo del sitio público. El panel (/admin) se puede rastrear para que los
+# buscadores lean su cabecera X-Robots-Tag: noindex y no lo muestren en los resultados.
 User-agent: *
 Allow: /
+Disallow: /api/
+
+Sitemap: https://manaurevive.com/sitemap.xml
