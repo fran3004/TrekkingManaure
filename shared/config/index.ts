@@ -38,6 +38,6 @@ export const cupos = {
 
 export const contacto = {
   encargada: 'Sandra',
-  whatsapp: '573216889096',
+  whatsapp: '573137317910',
   whatsappConfigurado: true,
 } as const;
