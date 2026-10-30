@@ -14,7 +14,6 @@ export function useMarquesinaAliados() {
     const caja = cajaRef.current;
     const pista = pistaRef.current;
     if (!caja || !pista) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     let x = 0;
     let velocidad = 0;

@@ -122,6 +122,11 @@
     opacity: 1;
     transform: none;
   }
+  /* Las cintas son infinitas: con 0.01ms se repetirían miles de veces por segundo y parpadearían.
+     Conservan su velocidad normal, que es lenta y no marea. */
+  .marquee__track {
+    animation-duration: 28s !important;
+  }
 }
 .nav__mobile-reserva {
   display: none;
