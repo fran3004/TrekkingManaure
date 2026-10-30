@@ -28,8 +28,9 @@ export function useReservas() {
   return {
     registrations: state.registrations,
     capacity: state.capacity,
-    fechaCierre: state.fechaCierre,
     occupied: state.occupied,
+    paramo: state.paramo,
+    fechaCierre: state.fechaCierre,
     today,
   };
 }
@@ -40,8 +41,11 @@ export function useCierre() {
   return { fechaCierre, cerrado: today > fechaCierre, plazoTexto: formatLongDate(fechaCierre) };
 }
 
+/** Cupos de la carrera; `paramo` trae los cupos del páramo, que se llevan aparte. */
 export function useDisponibilidad() {
-  const { registrations, capacity, occupied } = useReservas();
-  // Sin lista de reservas (sitio público) los ocupados vienen del servidor.
-  return getAvailability(registrations, capacity, registrations.length ? undefined : occupied);
+  const { capacity, occupied, paramo } = useReservas();
+  return {
+    ...getAvailability(capacity, occupied),
+    paramo: getAvailability(paramo.capacity, paramo.occupied),
+  };
 }

@@ -126,6 +126,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .agotado,
   .bloque-progresivo {
     animation: none;
   }
@@ -722,4 +723,98 @@
   margin-top: 1.2rem;
   font-size: 0.68rem !important;
   color: rgba(253, 248, 223, 0.45) !important;
+}
+
+/* Aviso que sustituye al formulario cuando se completan los cupos de la carrera. */
+.agotado {
+  animation: bloque-entra 0.35s ease both;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.2rem) clamp(1.4rem, 4vw, 3rem);
+  text-align: center;
+  border: 1px solid var(--linea);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(242, 193, 78, 0.16), transparent 55%),
+    linear-gradient(165deg, rgba(11, 46, 38, 0.92), rgba(3, 27, 22, 0.95));
+  box-shadow: var(--sombra);
+}
+.agotado__icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  border: 1px solid var(--linea);
+  background: rgba(242, 193, 78, 0.1);
+  color: var(--dorado);
+}
+.agotado__icon .ico {
+  width: 36px;
+  height: 36px;
+}
+.agotado__tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--naranja);
+  font-weight: 700;
+}
+.agotado__title {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1;
+  margin: 0;
+}
+.agotado__title em {
+  font-style: normal;
+  color: var(--dorado);
+}
+.agotado__text {
+  max-width: 52ch;
+  font-size: 0.92rem;
+  color: rgba(253, 248, 223, 0.74);
+  margin: 0;
+}
+.agotado__bar {
+  width: min(320px, 100%);
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(253, 248, 223, 0.08);
+  overflow: hidden;
+}
+.agotado__bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--musgo), var(--dorado), var(--accion));
+}
+.agotado__datos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+.agotado__datos li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--linea);
+  background: rgba(3, 27, 22, 0.55);
+  font-size: 0.78rem;
+  color: var(--texto);
+}
+.agotado__datos .ico {
+  width: 16px;
+  height: 16px;
+  color: var(--dorado);
 }

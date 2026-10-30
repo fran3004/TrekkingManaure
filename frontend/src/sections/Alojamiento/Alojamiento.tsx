@@ -38,8 +38,8 @@ export default function Alojamiento({ onSelect }: { onSelect: (value: Estadia) =
                 ))}
               </ul>
               {stay.sinCupo && (
-                <span className="btn btn--ghost stay__agotado" aria-disabled="true">
-                  {stay.aviso}
+                <span className="stay__agotado" role="status">
+                  <Icon name="info" /> {stay.aviso}
                 </span>
               )}
               {!stay.sinCupo && (

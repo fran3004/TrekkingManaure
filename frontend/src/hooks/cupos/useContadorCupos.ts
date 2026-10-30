@@ -9,9 +9,9 @@ export function useContadorCupos() {
     capacity,
     occupied,
     barStyle: { width: percentage + '%' },
-    status: soldOut ? 'Páramo agotado' : 'Cupo limitado',
+    status: soldOut ? 'Cupos agotados' : 'Cupo limitado',
     nota: soldOut
-      ? 'Ya no hay cupos para dormir en el páramo. La inscripción sigue abierta con hotel en Manaure o regreso a casa.'
-      : 'Cupos solo para quienes duermen en el páramo. Hotel y regreso a casa no ocupan cupo.',
+      ? 'Ya no hay cupos para la carrera. Será en una siguiente oportunidad.'
+      : 'Cada inscripción gasta un cupo, con o sin acompañante.',
   };
 }

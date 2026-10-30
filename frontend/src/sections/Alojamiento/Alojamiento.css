@@ -113,7 +113,32 @@
   background: rgba(3, 27, 22, 0.7);
 }
 
+.stay-grid > * {
+  min-width: 0;
+}
+/* Aviso de cupos completos: ocupa el lugar del botón y se ajusta al ancho de la tarjeta. */
 .stay__agotado {
-  opacity: 0.55;
-  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  border-radius: 16px;
+  border: 1px dashed rgba(242, 193, 78, 0.35);
+  background: rgba(242, 193, 78, 0.07);
+  color: var(--dorado-claro);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: normal;
+}
+.stay__agotado .ico {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--dorado);
 }

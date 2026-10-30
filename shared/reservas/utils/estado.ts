@@ -101,11 +101,6 @@ export function summarize(registration: Registration, today: string): Summary {
   };
 }
 
-/** Una inscripción ocupa cupo desde que tiene al menos un pago aprobado. */
-export function holdsSpot(registration: Registration) {
-  return getPaid(registration) > 0;
-}
-
 /** Monto que debería llegar según el concepto del pago y lo ya aprobado. */
 export function getExpectedAmount(registration: Registration, payment: Payment) {
   if (payment.concept === 'Separación de cupo') return precios.inscripcion;
@@ -188,17 +183,13 @@ export function countRunners(registrations: Registration[]) {
   return registrations.reduce((sum, registration) => sum + countPeople(registration), 0);
 }
 
-/** Corredores de una reserva que se quedan en el páramo: son los únicos que gastan cupo. */
+/** Corredores de una reserva que se quedan en el páramo: cada uno gasta un cupo. */
 export function countParamoPeople(
   registration: Pick<Registration, 'stay'> & { companion: Pick<Person, 'stay'> | null },
 ) {
   return [registration.stay, registration.companion?.stay].filter(
     (stay) => stay === ESTADIA_CON_CUPO,
   ).length;
-}
-
-export function countParamoRunners(registrations: Registration[]) {
-  return registrations.reduce((sum, registration) => sum + countParamoPeople(registration), 0);
 }
 
 export function countPendingReviews(registrations: Registration[]) {

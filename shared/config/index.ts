@@ -28,10 +28,12 @@ export const precios = {
   hotelNoche: 45000,
 } as const;
 
-// Cupos del páramo: solo los ocupan quienes se quedan a dormir allá. La organización cambia
-// la cantidad desde el panel; este es el valor inicial.
+// Cupos de la carrera (uno por reserva, con o sin acompañante) y cupos del páramo (uno por persona
+// que duerme allá). La organización cambia ambas cantidades desde el panel; estos son los valores
+// iniciales.
 export const cupos = {
   iniciales: 60,
+  paramo: 30,
 } as const;
 
 export const contacto = {

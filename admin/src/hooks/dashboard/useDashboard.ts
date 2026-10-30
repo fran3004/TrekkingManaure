@@ -16,12 +16,13 @@ import { daysBetween, describeDeadline } from '../../utils/comun/fechas';
 import { padCount, plural } from '../../utils/comun/texto';
 
 export function useDashboard() {
-  const { registrations, today, capacity, fechaCierre } = useReservas();
+  const { registrations, today, capacity, occupied, paramo, fechaCierre } = useReservas();
   const { setFocusPaymentId } = useAdminUi();
   const summaries = registrations.map((registration) => summarize(registration, today));
   const count = (status: RegistrationStatus) =>
     summaries.filter((summary) => summary.status === status).length;
-  const availability = getAvailability(registrations, capacity);
+  const availability = getAvailability(capacity, occupied);
+  const paramoAvailability = getAvailability(paramo.capacity, paramo.occupied);
   const reviews = summaries
     .flatMap((summary) => summary.pending.map((payment) => ({ summary, payment })))
     .sort((a, b) => a.payment.date.localeCompare(b.payment.date));
@@ -42,6 +43,8 @@ export function useDashboard() {
         countRunners(registrations) +
         ' corredores · ' +
         availability.available +
+        ' cupos libres · ' +
+        paramoAvailability.available +
         ' cupos libres en el páramo',
       icon: 'users' as const,
     },

@@ -1,11 +1,11 @@
 import { cupos, evento } from '../../config';
-import type { Registration, ReservasState } from '../tipos';
+import type { CuposServidor, Registration, ReservasState } from '../tipos';
 import { alCambiarSesion, haySesion, solicitar } from './http';
 
 /**
  * Dónde viven las reservas: la API. Con sesión de administrador se pide la lista completa
  * (GET /admin/reservas); en el sitio público solo la disponibilidad (GET /disponibilidad). El
- * estado se vuelve a pedir al montar, al volver a la pestaña, cada 15 s y tras cada escritura.
+ * estado se vuelve a pedir al montar, al volver a la pestaña, cada 5 s y tras cada escritura.
  */
 export type RepositorioReservas = {
   /** Instantánea actual; devuelve el mismo objeto mientras nada cambie. */
@@ -16,30 +16,34 @@ export type RepositorioReservas = {
   refrescar: () => Promise<void>;
 };
 
-const REFRESCO_MS = 15 * 1000;
+const REFRESCO_MS = 5 * 1000;
 
 /** Estado mientras carga o si la API no responde: valores de la configuración local. */
 function estadoInicial(): ReservasState {
   return {
     registrations: [],
     capacity: cupos.iniciales,
+    occupied: 0,
+    paramo: { capacity: cupos.paramo, occupied: 0 },
     fechaCierre: evento.fechaLimitePago,
   };
 }
 
-type RespuestaAdmin = { registrations: Registration[]; capacity: number; fechaCierre: string };
-type RespuestaPublica = { capacity: number; occupied: number; fechaCierre: string };
+type RespuestaPublica = {
+  capacity: number;
+  occupied: number;
+  paramo: CuposServidor;
+  fechaCierre: string;
+};
+type RespuestaAdmin = RespuestaPublica & { registrations: Registration[] };
 
 function esObjeto(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === 'object' && valor !== null;
 }
 
-function esRespuestaAdmin(valor: unknown): valor is RespuestaAdmin {
+function esCupos(valor: unknown): valor is CuposServidor {
   return (
-    esObjeto(valor) &&
-    Array.isArray(valor.registrations) &&
-    typeof valor.capacity === 'number' &&
-    typeof valor.fechaCierre === 'string'
+    esObjeto(valor) && typeof valor.capacity === 'number' && typeof valor.occupied === 'number'
   );
 }
 
@@ -48,7 +52,14 @@ function esRespuestaPublica(valor: unknown): valor is RespuestaPublica {
     esObjeto(valor) &&
     typeof valor.capacity === 'number' &&
     typeof valor.occupied === 'number' &&
+    esCupos(valor.paramo) &&
     typeof valor.fechaCierre === 'string'
+  );
+}
+
+function esRespuestaAdmin(valor: unknown): valor is RespuestaAdmin {
+  return (
+    esRespuestaPublica(valor) && Array.isArray((valor as { registrations?: unknown }).registrations)
   );
 }
 
@@ -84,11 +95,11 @@ function crearRepositorio(): RepositorioReservas {
     if (numero !== ultima || admin !== haySesion() || !respuesta.ok) return;
 
     if (admin && esRespuestaAdmin(respuesta.data)) {
-      const { registrations, capacity, fechaCierre } = respuesta.data;
-      aplicar({ registrations, capacity, fechaCierre });
+      const { registrations, capacity, occupied, paramo, fechaCierre } = respuesta.data;
+      aplicar({ registrations, capacity, occupied, paramo, fechaCierre });
     } else if (!admin && esRespuestaPublica(respuesta.data)) {
-      const { capacity, occupied, fechaCierre } = respuesta.data;
-      aplicar({ registrations: [], capacity, fechaCierre, occupied });
+      const { capacity, occupied, paramo, fechaCierre } = respuesta.data;
+      aplicar({ registrations: [], capacity, occupied, paramo, fechaCierre });
     }
   }
 
@@ -100,7 +111,7 @@ function crearRepositorio(): RepositorioReservas {
   function alCambiarModo() {
     if (haySesion() === modoAdmin) return;
     modoAdmin = haySesion();
-    aplicar({ ...actual, registrations: [], occupied: undefined });
+    aplicar({ ...actual, registrations: [] });
     void refrescar();
   }
 

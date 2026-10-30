@@ -18,8 +18,9 @@ import {
 } from '../../../../shared/reservas';
 
 export function useCupos() {
-  const { registrations, today, capacity, fechaCierre } = useReservas();
+  const { registrations, today, capacity, occupied, paramo, fechaCierre } = useReservas();
   const [value, setValue] = useState<number | ''>(capacity);
+  const [paramoValue, setParamoValue] = useState<number | ''>(paramo.capacity);
   const [fecha, setFecha] = useState(fechaCierre);
   const [fechaFeedback, setFechaFeedback] = useState('');
   const [fechaError, setFechaError] = useState('');
@@ -33,8 +34,10 @@ export function useCupos() {
   const runners = secured.flatMap((summary) =>
     getRunners(summary.registration).map((runner) => ({ ...runner, status: summary.status })),
   );
-  const availability = getAvailability(registrations, capacity);
+  const availability = getAvailability(capacity, occupied);
+  const paramoAvailability = getAvailability(paramo.capacity, paramo.occupied);
   const range = capacityRange(availability.occupied);
+  const paramoRange = capacityRange(paramoAvailability.occupied);
   const kits = runners.filter((runner) => runner.kit);
   const atRisk = kits.filter((runner) => runner.status === 'Vencido').length;
   const countRunners = (match: (runner: (typeof runners)[number]) => boolean) =>
@@ -44,14 +47,20 @@ export function useCupos() {
 
   async function applyCapacity(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (value === '' || saving) return;
+    if (value === '' || paramoValue === '' || saving) return;
     setSaving(true);
     setFeedback('');
     setError('');
-    const result = await reservasApi.fijarCapacidad(value);
+    const result = await reservasApi.fijarCapacidad(value, paramoValue);
     setSaving(false);
     if (result.ok)
-      setFeedback('Cupos del páramo actualizados a ' + plural(result.data, 'cupo', 'cupos') + '.');
+      setFeedback(
+        'Cupos actualizados: ' +
+          plural(result.data.capacity, 'cupo', 'cupos') +
+          ' en la carrera y ' +
+          plural(result.data.paramo, 'cupo', 'cupos') +
+          ' en el páramo.',
+      );
     else setError(result.error);
   }
 
@@ -73,13 +82,21 @@ export function useCupos() {
   return {
     availability,
     barStyle: { width: availability.percentage + '%' },
+    paramoAvailability,
+    paramoBarStyle: { width: paramoAvailability.percentage + '%' },
     value,
     range,
-    limitText: 'Mínimo ' + range.min + ' (cupos del páramo ya ocupados). Sin tope máximo.',
+    paramoValue,
+    paramoRange,
+    limitText: 'Mínimo ' + range.min + ' (reservas activas). Sin tope máximo.',
+    paramoLimitText:
+      'Mínimo ' + paramoRange.min + ' (cupos del páramo ya ocupados). Sin tope máximo.',
     policyText:
       'Hay ' +
       capacity +
-      ' cupos para dormir en el páramo. Solo los ocupan corredores con estadía en el páramo; hotel en Manaure y regreso a casa no gastan cupo. Al agotarse, el sitio deshabilita esa opción y la inscripción sigue abierta.',
+      ' cupos para la carrera: cada reserva gasta uno, con o sin acompañante. Al agotarse, el formulario del sitio desaparece. En el páramo hay ' +
+      paramo.capacity +
+      ' cupos: cada persona que duerme allá (titular o acompañante) ocupa uno. Al agotarse, el sitio deshabilita esa opción y la inscripción sigue abierta. Los cupos se apartan al registrar la reserva y se liberan si queda rechazada o vence.',
     cierre: {
       value: fecha,
       actual: formatLongDate(fechaCierre),
@@ -106,6 +123,8 @@ export function useCupos() {
     saveLabel: saving ? 'Guardando…' : 'Guardar cupos',
     changeValue: (event: ChangeEvent<HTMLInputElement>) =>
       setValue(event.target.value === '' ? '' : Number(event.target.value)),
+    changeParamoValue: (event: ChangeEvent<HTMLInputElement>) =>
+      setParamoValue(event.target.value === '' ? '' : Number(event.target.value)),
     applyCapacity,
     kitsLabel: kits.length + ' kits',
     sizes: tallas.map((size) => ({

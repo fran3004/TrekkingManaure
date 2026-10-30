@@ -19,6 +19,9 @@ export default function OpcionEstadia(props: Props) {
           <small>Elige dónde pasas la noche. Solo el páramo tiene cupos limitados.</small>
         </div>
       </div>
+      <p className="form-aviso" role="status">
+        {view.cupoParamo}
+      </p>
       {view.avisoParamo && (
         <p className="form-aviso" role="status">
           {view.avisoParamo}

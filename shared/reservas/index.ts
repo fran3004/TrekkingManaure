@@ -10,4 +10,5 @@ export * from './utils/normalizacion';
 export * from './utils/telefono';
 export * from './utils/validaciones';
 export { reservasApi } from './servicios/reservasApi';
+export { repositorio } from './servicios/repositorio';
 export { useCierre, useDisponibilidad, useHoy, useReservas } from './hooks/useReservas';

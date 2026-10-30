@@ -168,7 +168,7 @@
 .cupos-big__num > small {
   font-family: var(--textos);
   font-size: 0.3em;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.03em;
   color: rgba(253, 248, 223, 0.5);
 }
 .cupos-title {
