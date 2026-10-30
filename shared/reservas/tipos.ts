@@ -129,15 +129,20 @@ export type RegistrationStatus =
  */
 export type ReservasState = {
   registrations: Registration[];
-  /** Cupos del páramo: solo los ocupan los corredores que se quedan allá. */
+  /** Cupos de la carrera: cada reserva gasta uno, con o sin acompañante. */
   capacity: number;
+  /** Cupos de la carrera ocupados, según el servidor. */
+  occupied: number;
+  /** Cupos del páramo: uno por persona (titular o acompañante) que se queda allá. */
+  paramo: CuposServidor;
   /**
    * Fecha de cierre (AAAA-MM-DD): último día para inscribirse y para pagar el restante. La
    * cambia la organización desde el panel.
    */
   fechaCierre: string;
-  /** Cupos ocupados que informa el servidor; se usa cuando no hay lista de reservas. */
-  occupied?: number;
 };
+
+/** Capacidad y ocupación de un contador de cupos, tal como las informa el servidor. */
+export type CuposServidor = { capacity: number; occupied: number };
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string };

@@ -1,6 +1,3 @@
-import type { Registration } from '../tipos';
-import { countParamoRunners, holdsSpot } from './estado';
-
 export type Availability = {
   occupied: number;
   capacity: number;
@@ -10,17 +7,11 @@ export type Availability = {
 };
 
 /**
- * Cupos del páramo. Ocupa cupo cada corredor (titular o acompañante) que se queda en el páramo,
- * de una inscripción con algún pago aprobado. Hotel en Manaure y regreso a casa no gastan cupo.
- * La capacidad la fija la organización desde el panel (60 al inicio). Si se da `occupiedOverride`
- * (el sitio público no descarga las reservas), se usa en lugar de contarlas.
+ * Cupos disponibles de un contador. Los números los calcula el servidor al apartar el cupo en cada
+ * reserva (nada se cuenta en el navegador): la carrera gasta uno por reserva y el páramo un cupo
+ * por persona que duerme allá. Hotel en Manaure y regreso a casa no gastan cupo del páramo.
  */
-export function getAvailability(
-  registrations: Registration[],
-  capacity: number,
-  occupiedOverride?: number,
-): Availability {
-  const occupied = occupiedOverride ?? countParamoRunners(registrations.filter(holdsSpot));
+export function getAvailability(capacity: number, occupied: number): Availability {
   const available = Math.max(0, capacity - occupied);
 
   return {
@@ -32,7 +23,7 @@ export function getAvailability(
   };
 }
 
-/** Mínimo permitido al ajustar los cupos del páramo: no menos que lo ocupado. */
+/** Mínimo permitido al ajustar un tope de cupos: no menos que lo ocupado. */
 export function capacityRange(occupied: number) {
   return { min: Math.max(1, occupied) };
 }

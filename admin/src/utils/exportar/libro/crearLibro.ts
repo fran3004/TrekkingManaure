@@ -1,51 +1,41 @@
-import { precios as tarifas } from '../../../../../shared/config';
-import { dxfLibro, estilosLibro, hojas } from '../../../data/exportar/libro';
 import { evento } from '../../../../../shared/config';
+import { dxfLibro, estilosLibro } from '../../../data/exportar/libro';
 import { buildXlsx } from '../xlsx/paquete';
 import { crearBuscar } from './buscar';
 import type { LibroContexto } from './comun';
+import { crearConfiguracion } from './configuracion';
 import { crearCorredores } from './corredores';
+import { crearGuia } from './guia';
 import { crearInscripciones } from './inscripciones';
+import { crearListas } from './listas';
 import { crearPagos } from './pagos';
 import { crearResumen } from './resumen';
-import { crearTarifas } from './tarifas';
 
-// Libro de gestión: datos, fórmulas, tablas, filtros, formatos y gráficos de Excel.
+// Libro de gestión: datos, fórmulas, tablas, filtros, formatos, gráficos y filas para registrar a mano.
 export function crearLibroGestion(contexto: LibroContexto) {
-  const tarifasHoja = crearTarifas(contexto);
-  const inscripciones = crearInscripciones(contexto);
-  const precios = [
-    tarifas.total,
-    tarifas.acompananteConKit,
-    tarifas.acompanante,
-    tarifas.cuatrimoto,
-    tarifas.parapente,
-    tarifas.parapente,
-    tarifas.hotelNoche,
-  ];
+  const configuracion = crearConfiguracion(contexto);
+  const listas = crearListas();
 
   return buildXlsx({
     title: evento.nombre + ' · Gestión',
     styles: estilosLibro,
     dxfs: dxfLibro,
     sheets: [
-      crearResumen(contexto, precios).sheet,
+      crearResumen(contexto).sheet,
+      crearGuia(contexto).sheet,
       crearBuscar(contexto).sheet,
-      inscripciones.sheet,
+      crearInscripciones(contexto).sheet,
       crearPagos(contexto).sheet,
       crearCorredores(contexto).sheet,
-      tarifasHoja.sheet,
+      configuracion.sheet,
+      listas.sheet,
     ],
     names: [
-      ...tarifasHoja.names,
-      {
-        name: 'ListaCodigos',
-        ref:
-          "'" +
-          hojas.inscripciones +
-          "'!" +
-          inscripciones.codes.replace(/([A-Z]+)(\d+)/g, '$$$1$$$2'),
-      },
+      ...configuracion.names,
+      ...listas.names,
+      // Columnas de tabla con nombre: crecen solas cuando se agregan filas a la tabla.
+      { name: 'ListaCodigos', ref: 'Inscripciones[Código]' },
+      { name: 'DocumentosInscripciones', ref: 'Inscripciones[Documento]' },
     ],
   });
 }

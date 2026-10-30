@@ -1,5 +1,4 @@
 import Extras from '../Extras';
-import { evento } from '../../../../shared/config';
 import Icon from '../../../../shared/components/Icon';
 import { useCostos } from '../../hooks';
 import './Costos.css';

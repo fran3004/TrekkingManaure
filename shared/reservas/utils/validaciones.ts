@@ -24,7 +24,6 @@ import type {
   PreEventHotel,
   Registration,
 } from '../tipos';
-import { getAvailability } from './cupos';
 import { countParamoPeople, getStatus } from './estado';
 import { firstPaymentDay, getAge, isIsoDate, isMinor } from './fechas';
 import { countHotelNights, hotelWindow } from './hotel';
@@ -356,6 +355,10 @@ function validateCierre(today: string, fechaCierre: string): string | null {
     : null;
 }
 
+/** Mensaje cuando la carrera llega a su tope de reservas. */
+export const MENSAJE_CARRERA_AGOTADA =
+  'Ya no hay cupos disponibles para la carrera. Será en una siguiente oportunidad.';
+
 /**
  * Cupos del páramo que necesita una reserva frente a los libres. Hotel en Manaure y regreso a
  * casa no gastan cupo, así que solo falla si alguien elige el páramo y no cabe.
@@ -374,10 +377,10 @@ function validateParamo(people: number, available: number): string | null {
 export function validateNewRegistration(
   input: NewRegistration,
   registrations: Registration[],
-  capacity: number,
   today: string,
   fechaCierre: string,
-  occupied?: number,
+  carreraDisponible: number,
+  paramoDisponible: number,
 ): string | null {
   const closedError = validateCierre(today, fechaCierre);
   if (closedError) return closedError;
@@ -435,8 +438,8 @@ export function validateNewRegistration(
   );
   if (repeated) return 'El documento ' + repeated + ' ya tiene una reserva registrada.';
 
-  const { available } = getAvailability(registrations, capacity, occupied);
-  return validateParamo(countParamoPeople(input), available);
+  if (carreraDisponible < 1) return MENSAJE_CARRERA_AGOTADA;
+  return validateParamo(countParamoPeople(input), paramoDisponible);
 }
 
 /** El titular es menor y la organización aún no recibe la autorización de su responsable. */

@@ -5,33 +5,42 @@ import { formatMoney } from '../../../../shared/utils/format';
 /** Sección "Así funciona el cupo", con la capacidad y ocupación vigentes. */
 export function useCupos() {
   const inscripcion = formatMoney(precios.inscripcion);
-  const { capacity, occupied, available, percentage } = useDisponibilidad();
-  const { plazoTexto } = useCierre();
+  const { capacity, occupied, available, percentage, soldOut } = useDisponibilidad();
+  const { plazoTexto, cerrado } = useCierre();
 
   return {
     capacity,
-    inscripcion,
+    available,
+    occupied,
+    ocupacion: Math.round(percentage),
     barStyle: { width: percentage + '%' },
+    agotado: soldOut,
     legend: available
       ? available + (available === 1 ? ' cupo libre' : ' cupos libres')
-      : 'Cupos del páramo agotados',
-    occupied,
-    plazo: plazoTexto,
+      : 'Cupos de la carrera agotados',
+    estado: soldOut
+      ? 'Cupos completos'
+      : cerrado
+        ? 'Inscripciones cerradas'
+        : 'Inscripciones abiertas',
+    plazo: cerrado
+      ? 'Las inscripciones cerraron el ' + plazoTexto
+      : 'Inscríbete hasta el ' + plazoTexto,
     rules: [
       {
-        title: capacity + ' cupos para dormir en el páramo',
-        text: 'Los cupos son la capacidad del páramo: solo los ocupan quienes se quedan allá después del recorrido. Hotel en Manaure y regreso a casa no ocupan cupo.',
+        icon: 'sheet' as const,
+        title: 'Apártalo con los ' + inscripcion,
+        text: 'Tu cupo se aparta al registrar la reserva y pagas por llave Bre-B.',
       },
       {
-        title: 'Si se agotan, la inscripción sigue abierta',
-        text:
-          'Cuando se llenan los cupos del páramo, esa opción se deshabilita en la reserva, pero puedes inscribirte eligiendo hotel en Manaure o regreso a casa hasta el ' +
-          plazoTexto +
-          '.',
+        icon: 'clock' as const,
+        title: 'Págalo a tiempo',
+        text: 'Si el pago no llega a tiempo o se rechaza, el cupo se libera para otra persona.',
       },
       {
-        title: 'Reservas con los ' + inscripcion,
-        text: 'El cupo del páramo se ocupa cuando la organización verifica que llegó el pago de la inscripción.',
+        icon: 'flag' as const,
+        title: 'Cuando se completan',
+        text: 'El formulario se cierra hasta una siguiente oportunidad.',
       },
     ].map((rule, index) => ({ ...rule, n: index + 1 })),
   };

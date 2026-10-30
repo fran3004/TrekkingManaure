@@ -7,16 +7,16 @@ export default function ContadorCupos() {
   const counter = useContadorCupos();
 
   return (
-    <aside className="cupo-card reveal" aria-label="Cupos del páramo">
+    <aside className="cupo-card reveal" aria-label="Cupos de la carrera">
       <div className="cupo-card__head">
-        <span className="cupo-card__label">Cupos del páramo</span>
+        <span className="cupo-card__label">Cupos de la carrera</span>
         <span className="cupo-card__live">
           <i className="dot-live" /> {counter.status}
         </span>
       </div>
       <div className="cupo-card__number">
         {counter.available}
-        <small>de {counter.capacity} personas</small>
+        <small>de {counter.capacity} cupos</small>
       </div>
       <div
         className="bar"
@@ -31,7 +31,7 @@ export default function ContadorCupos() {
       <div className="cupo-card__foot">
         <span>Confirmados</span>
         <span>
-          {counter.occupied} de {counter.capacity} personas
+          {counter.occupied} de {counter.capacity} cupos
         </span>
       </div>
       <div className="cupo-card__note">

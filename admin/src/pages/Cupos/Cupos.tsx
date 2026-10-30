@@ -14,8 +14,8 @@ export default function Cupos() {
             Gestión de <em>cupos</em>
           </h1>
           <p>
-            Cupos del páramo, fecha de cierre, kits por talla, estadías y experiencias de los cupos
-            asegurados.
+            Cupos de la carrera y del páramo, fecha de cierre, kits por talla, estadías y
+            experiencias de los cupos asegurados.
           </p>
         </div>
       </div>
@@ -23,15 +23,15 @@ export default function Cupos() {
         <article className="admin-panel admin-capacity">
           <div className="admin-panel-head">
             <div>
-              <h2>Cupos del páramo</h2>
-              <p>Ocupa cupo cada corredor con pago aprobado que se queda en el páramo</p>
+              <h2>Cupos de la carrera</h2>
+              <p>Cada reserva activa gasta un cupo, con o sin acompañante</p>
             </div>
             <Icon name="users" />
           </div>
           <div className="admin-capacity-number">
             <strong>{view.availability.available}</strong>
             <span>
-              Cupos libres en el páramo<small>de {view.availability.capacity} en total</small>
+              Cupos libres en la carrera<small>de {view.availability.capacity} en total</small>
             </span>
           </div>
           <div
@@ -48,6 +48,27 @@ export default function Cupos() {
             <span>{view.availability.occupied} ocupados</span>
             <span>{view.availability.available} disponibles</span>
           </div>
+          <div className="admin-capacity-number">
+            <strong>{view.paramoAvailability.available}</strong>
+            <span>
+              Cupos libres en el páramo
+              <small>de {view.paramoAvailability.capacity} en total</small>
+            </span>
+          </div>
+          <div
+            className="bar"
+            role="meter"
+            aria-label="Cupos del páramo ocupados"
+            aria-valuemin={0}
+            aria-valuemax={view.paramoAvailability.capacity}
+            aria-valuenow={view.paramoAvailability.occupied}
+          >
+            <div className="bar__fill" style={view.paramoBarStyle} />
+          </div>
+          <div className="admin-capacity-legend">
+            <span>{view.paramoAvailability.occupied} ocupadas</span>
+            <span>{view.paramoAvailability.available} disponibles</span>
+          </div>
           <p className="admin-notice">{view.policyText}</p>
         </article>
         <article className="admin-panel admin-settings">
@@ -58,21 +79,33 @@ export default function Cupos() {
               </span>
               <div>
                 <h2 id="setting-cupos">Ajustar cupos</h2>
-                <p>Cambia la cantidad de cupos. El sitio público la muestra al instante.</p>
+                <p>Cambia la cantidad de cupos. El sitio público los muestra en pocos segundos.</p>
               </div>
             </header>
             <form className="admin-setting__form" onSubmit={view.applyCapacity}>
-              <label htmlFor="capacity">Cupos para dormir en el páramo</label>
+              <label htmlFor="capacity">Cupos de la carrera (uno por reserva)</label>
+              <input
+                id="capacity"
+                required
+                type="number"
+                inputMode="numeric"
+                min={view.range.min}
+                step={1}
+                value={view.value}
+                onChange={view.changeValue}
+              />
+              <small>{view.limitText}</small>
+              <label htmlFor="paramo">Cupos en el páramo (uno por persona)</label>
               <div className="admin-setting__row">
                 <input
-                  id="capacity"
+                  id="paramo"
                   required
                   type="number"
                   inputMode="numeric"
-                  min={view.range.min}
+                  min={view.paramoRange.min}
                   step={1}
-                  value={view.value}
-                  onChange={view.changeValue}
+                  value={view.paramoValue}
+                  onChange={view.changeParamoValue}
                 />
                 <button
                   className="btn btn--primary admin-setting__btn"
@@ -82,7 +115,7 @@ export default function Cupos() {
                   {view.saveLabel} <Icon name="check" />
                 </button>
               </div>
-              <small>{view.limitText}</small>
+              <small>{view.paramoLimitText}</small>
             </form>
             <p role="status" className="admin-feedback admin-setting__msg">
               {view.feedback}

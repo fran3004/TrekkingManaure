@@ -4,10 +4,12 @@ import {
   countHotelNights,
   isIsoDate,
   isMinor,
+  repositorio,
   reservasApi,
   useCierre,
   useDisponibilidad,
   useReservas,
+  ESTADIA_CON_CUPO,
   validateNewRegistration,
   type NewRegistration,
   type PreEventHotel,
@@ -40,6 +42,9 @@ type Envio = {
 
 const HOTEL_VACIO = ESTADO_VACIO.hotel;
 
+const PARAMO_COMPLETO =
+  'Los cupos del páramo se completaron mientras llenabas el formulario. Elige hotel en Manaure o regreso a casa.';
+
 /** Hotel listo para cotizar: activo y con fechas válidas en orden; si no, null. */
 function hotelCotizable(hotel: HotelFormulario, companion: boolean): PreEventHotel | null {
   if (!hotel.activo || !isIsoDate(hotel.checkIn) || !isIsoDate(hotel.checkOut)) return null;
@@ -68,8 +73,10 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
   const [formKey, setFormKey] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
   const { visibles, revisar, reiniciar } = useBloquesProgresivos(formRef);
-  const { registrations, capacity, today } = useReservas();
+  const { registrations, today } = useReservas();
   const availability = useDisponibilidad();
+  // Estadía del acompañante: su selector no es controlado, así que se lee del formulario.
+  const [acompEstadia, setAcompEstadia] = useState('');
   const cierre = useCierre();
   const estado = useMemo(
     () => ({ stay, plan, planDate, companion, companionKit, extras, hotel }),
@@ -95,6 +102,39 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
   });
   const needsDate = plan === 'apartado';
 
+  function leerEstadiaAcompanante() {
+    const campo = formRef.current?.elements.namedItem('acompEstadia');
+    setAcompEstadia(campo instanceof HTMLSelectElement ? campo.value : '');
+  }
+  useEffect(leerEstadiaAcompanante, [companion, companionKit, formKey]);
+
+  // Cada cupo del páramo es de una persona: lo que elige el otro viajero también resta.
+  const paramoLibres = availability.paramo.available;
+  const paramoAgotadoTitular =
+    paramoLibres - (companion && acompEstadia === ESTADIA_CON_CUPO ? 1 : 0) < 1;
+  const paramoAgotadoAcompanante = paramoLibres - (stay === ESTADIA_CON_CUPO ? 1 : 0) < 1;
+
+  // Al elegir el páramo se pide el estado al servidor de inmediato, sin esperar al refresco.
+  const eligioParamo = stay === ESTADIA_CON_CUPO || acompEstadia === ESTADIA_CON_CUPO;
+  useEffect(() => {
+    if (eligioParamo) void repositorio.refrescar();
+  }, [eligioParamo]);
+
+  // Si otra persona toma los últimos cupos a mitad del formulario, esa opción se desmarca y se avisa.
+  useEffect(() => {
+    if (stay === ESTADIA_CON_CUPO && paramoAgotadoTitular) {
+      onStay('');
+      setError(PARAMO_COMPLETO);
+    }
+  }, [stay, paramoAgotadoTitular, onStay]);
+  useEffect(() => {
+    if (acompEstadia !== ESTADIA_CON_CUPO || !paramoAgotadoAcompanante) return;
+    const campo = formRef.current?.elements.namedItem('acompEstadia');
+    if (campo instanceof HTMLSelectElement) campo.value = '';
+    setAcompEstadia('');
+    setError(PARAMO_COMPLETO);
+  }, [acompEstadia, paramoAgotadoAcompanante]);
+
   function toggleExtra(extra: Extra) {
     setExtras((current) =>
       current.includes(extra) ? current.filter((item) => item !== extra) : [...current, extra],
@@ -111,7 +151,7 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
     setHotel((current) => ({ ...current, ...cambios }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
     const form = event.currentTarget;
@@ -143,14 +183,16 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
       extras,
       hotel,
     });
-    // Las mismas reglas que aplica el servicio: se avisan antes de abrir el resumen.
+    // Cupos al día justo antes de validar; las mismas reglas que aplica el servicio.
+    await repositorio.refrescar();
+    const fresco = repositorio.read();
     const invalid = validateNewRegistration(
       reserva,
       registrations,
-      capacity,
       today,
       cierre.fechaCierre,
-      availability.occupied,
+      fresco.capacity - fresco.occupied,
+      fresco.paramo.capacity - fresco.paramo.occupied,
     );
     if (invalid) {
       setError(invalid);
@@ -234,6 +276,7 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
     alCambiar: () => {
       revisar();
       borrador.programar();
+      leerEstadiaAcompanante();
     },
     borradorCampos: borrador.campos,
     borradorRecuperado: borrador.recuperado,
@@ -258,7 +301,13 @@ export function useReserva(stay: Estadia, onStay: (value: Estadia) => void) {
     preEventHotel,
     error,
     // Sin cupos en el páramo solo se deshabilita esa estadía; hotel y regreso a casa siguen.
-    paramoAgotado: availability.soldOut,
+    paramoAgotadoTitular,
+    paramoAgotadoAcompanante,
+    paramoCapacidad: availability.paramo.capacity,
+    paramoLibres,
+    // Con la carrera llena el formulario desaparece y queda un aviso.
+    carreraAgotada: availability.soldOut,
+    carreraCapacidad: availability.capacity,
     // Pasada la fecha de cierre ya no se reciben inscripciones.
     cerrado: cierre.cerrado,
     cerradoText:

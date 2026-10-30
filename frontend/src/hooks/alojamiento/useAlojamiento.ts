@@ -5,10 +5,10 @@ import type { Estadia } from '../../types/reserva';
 
 /** Tarjetas de estadía; sin cupos en el páramo, esa tarjeta no se puede elegir. */
 export function useAlojamiento(onSelect: (value: Estadia) => void) {
-  const { soldOut } = useDisponibilidad();
+  const { paramo } = useDisponibilidad();
 
   return estadias.map((stay) => {
-    const sinCupo = soldOut && stay.value === ESTADIA_CON_CUPO;
+    const sinCupo = paramo.soldOut && stay.value === ESTADIA_CON_CUPO;
     return {
       ...stay,
       sinCupo,

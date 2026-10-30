@@ -1,3 +1,4 @@
+import Icon from '../../../../shared/components/Icon';
 import { useCupos } from '../../hooks';
 import './Cupos.css';
 
@@ -8,9 +9,16 @@ export default function Cupos() {
     <section className="section section--tight" id="cupos">
       <div className="container cupos-wrap">
         <div className="cupos-big reveal">
-          <span className="cupos-big__cap">Cupos del páramo</span>
+          <div className="cupos-big__top">
+            <span className="cupos-big__cap">Cupos de la carrera</span>
+            <span
+              className={'cupos-big__estado' + (view.agotado ? ' cupos-big__estado--agotado' : '')}
+            >
+              <i className="dot-live" /> {view.estado}
+            </span>
+          </div>
           <div className="cupos-big__num">
-            <span>{view.capacity}</span> <small>CUPOS</small>
+            <span>{view.available}</span> <small>DE {view.capacity} LIBRES</small>
           </div>
           <div
             className="bar"
@@ -23,14 +31,27 @@ export default function Cupos() {
             <div className="bar__fill" style={view.barStyle} />
           </div>
           <div className="cupos-big__legend">
+            <span>0</span>
             <span>{view.legend}</span>
-            <span>Límite: {view.capacity} personas en el páramo</span>
+            <span>{view.capacity}</span>
           </div>
-          <div className="highlight">
-            <strong>Importante:</strong> estos cupos son solo para quienes duermen en el páramo. Si
-            se agotan, puedes inscribirte con hotel en Manaure o regreso a casa hasta el{' '}
-            {view.plazo}.
-          </div>
+          <dl className="cupos-big__stats">
+            <div>
+              <dd>{view.occupied}</dd>
+              <dt>Reservados</dt>
+            </div>
+            <div>
+              <dd>{view.available}</dd>
+              <dt>Libres</dt>
+            </div>
+            <div>
+              <dd>{view.ocupacion}%</dd>
+              <dt>Ocupación</dt>
+            </div>
+          </dl>
+          <p className="cupos-big__plazo">
+            <Icon name="calendar" /> {view.plazo}
+          </p>
         </div>
         <div className="reveal" data-delay="1">
           <span className="eyebrow">Así funciona el cupo</span>
@@ -42,11 +63,14 @@ export default function Cupos() {
           <div className="rules">
             {view.rules.map((rule) => (
               <div className="rule" key={rule.n}>
-                <span className="rule__n">{rule.n}</span>
+                <span className="rule__icon">
+                  <Icon name={rule.icon} />
+                </span>
                 <div>
                   <strong>{rule.title}</strong>
                   <p>{rule.text}</p>
                 </div>
+                <span className="rule__n">{rule.n}</span>
               </div>
             ))}
           </div>

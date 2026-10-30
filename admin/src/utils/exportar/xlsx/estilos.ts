@@ -1,7 +1,7 @@
 import { escapeXml } from './referencias';
 
 export type StyleDef = {
-  font?: { bold?: boolean; italic?: boolean; size?: number; color?: string };
+  font?: { bold?: boolean; italic?: boolean; underline?: boolean; size?: number; color?: string };
   fill?: string;
   numFmt?: string;
   align?: {
@@ -47,6 +47,7 @@ function fontXml(font: StyleDef['font'] = {}) {
     '<font>' +
     (font.bold ? '<b/>' : '') +
     (font.italic ? '<i/>' : '') +
+    (font.underline ? '<u/>' : '') +
     '<sz val="' +
     (font.size ?? 11) +
     '"/><color rgb="FF' +

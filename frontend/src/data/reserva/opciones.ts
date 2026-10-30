@@ -21,7 +21,7 @@ export const OPCIONES_ESTADIA: readonly { value: Stay; title: string; text: stri
 
 /** Aviso cuando ya no quedan cupos en el páramo: el resto de la reserva sigue abierta. */
 export const AVISO_PARAMO_AGOTADO =
-  'Los cupos del páramo están agotados. Puedes inscribirte igual eligiendo hotel en Manaure o regreso a casa.';
+  'Los cupos del páramo están completos. Puedes inscribirte igual eligiendo hotel en Manaure o regreso a casa.';
 
 /** Texto de la opción del páramo cuando no tiene cupo. */
 export const PARAMO_SIN_CUPO = 'Sin cupos disponibles en el páramo.';

@@ -68,9 +68,6 @@ export default function Inicio() {
             <a href="#reserva" className="btn btn--primary">
               Reservar mi cupo <Icon name="arrow" />
             </a>
-            <a href="#evento" className="btn btn--ghost">
-              Ver información
-            </a>
           </div>
         </div>
         <ContadorCupos />

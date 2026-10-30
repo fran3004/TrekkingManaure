@@ -120,7 +120,9 @@ export function buildXlsx(workbook: Workbook) {
           (sheet, index) =>
             '<sheet name="' +
             escapeXml(sheet.name) +
-            '" sheetId="' +
+            '"' +
+            (sheet.oculta ? ' state="hidden"' : '') +
+            ' sheetId="' +
             (index + 1) +
             '" r:id="rId' +
             (index + 1) +

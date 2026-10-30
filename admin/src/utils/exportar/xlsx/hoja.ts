@@ -24,7 +24,23 @@ export type Table = {
   style: string;
 };
 
-export type Validation = { range: string; list: string };
+/**
+ * Validación de datos de Excel. `list` es una lista ("A,B") o un nombre/rango; si no hay lista, `type`
+ * con `formula1`/`formula2` (sin el signo igual). `prompt` es la ayuda que aparece al seleccionar la
+ * celda y `error` el aviso al escribir algo inválido: [título de hasta 32 caracteres, texto de hasta
+ * 255]. `soloAviso` deja guardar el valor tras avisar (para listas que admiten otros textos).
+ */
+export type Validation = {
+  range: string;
+  list?: string;
+  type?: 'whole' | 'decimal' | 'date' | 'textLength' | 'custom';
+  operator?: 'between' | 'greaterThan' | 'greaterThanOrEqual' | 'lessThanOrEqual';
+  formula1?: string;
+  formula2?: string;
+  prompt?: [string, string];
+  error?: [string, string];
+  soloAviso?: boolean;
+};
 
 export type Conditional =
   | { range: string; type: 'expression'; formula: string; dxf: string }
@@ -64,11 +80,13 @@ export type Sheet = {
   charts: Chart[];
   gridLines: boolean;
   tabColor?: string;
+  /** Hoja auxiliar que no se muestra (por ejemplo, las listas de los desplegables). */
+  oculta?: boolean;
 };
 
 export function createSheet(
   name: string,
-  options: { gridLines?: boolean; tabColor?: string } = {},
+  options: { gridLines?: boolean; tabColor?: string; oculta?: boolean } = {},
 ): Sheet {
   return {
     name,
@@ -83,6 +101,7 @@ export function createSheet(
     charts: [],
     gridLines: options.gridLines ?? true,
     tabColor: options.tabColor,
+    oculta: options.oculta,
   };
 }
 
@@ -115,11 +134,18 @@ export function thisRow(table: string, column: string) {
   return table + '[[#This Row],[' + column + ']]';
 }
 
-// Escribe encabezado, filas y totales de una tabla de Excel y la registra en la hoja.
+const esCelda = (value: CellValue | Cell | undefined): value is Cell =>
+  typeof value === 'object' && value !== null;
+
+/**
+ * Escribe encabezado, filas y totales de una tabla de Excel y la registra en la hoja. Una fila puede
+ * traer valores o celdas completas (una fórmula propia o una celda vacía con otro estilo); las columnas
+ * con fórmula de tabla la usan siempre.
+ */
 export function addTable(
   sheet: Sheet,
   spec: Omit<Table, 'rowCount'>,
-  rows: (CellValue | undefined)[][],
+  rows: (CellValue | Cell | undefined)[][],
 ) {
   const data = rows.length ? rows : [spec.columns.map(() => null)];
   const { row, column, columns, name } = spec;
@@ -133,11 +159,16 @@ export function addTable(
 
   data.forEach((values, offset) => {
     columns.forEach((col, index) => {
+      const value = values[index];
       setCell(
         sheet,
         row + 1 + offset,
         column + index,
-        col.formula ? { f: col.formula, s: col.style } : { v: values[index] ?? null, s: col.style },
+        col.formula
+          ? { f: col.formula, s: col.style }
+          : esCelda(value)
+            ? { ...value, s: value.s ?? col.style }
+            : { v: value ?? null, s: col.style },
       );
     });
   });
@@ -279,22 +310,42 @@ function conditionalXml(sheet: Sheet, dxf: Record<string, number>) {
     .join('');
 }
 
+function validationXml(validation: Validation) {
+  const attribute = (name: string, value: string | undefined) =>
+    value === undefined ? '' : ' ' + name + '="' + escapeXml(value) + '"';
+  const formula = (name: string, value: string | undefined) =>
+    value === undefined ? '' : '<' + name + '>' + escapeXml(value) + '</' + name + '>';
+  const [promptTitle, prompt] = validation.prompt ?? [];
+  const [errorTitle, error] = validation.error ?? [];
+
+  return (
+    '<dataValidation' +
+    attribute('type', validation.list ? 'list' : validation.type) +
+    attribute('errorStyle', validation.soloAviso ? 'information' : undefined) +
+    attribute('operator', validation.list ? undefined : validation.operator) +
+    ' allowBlank="1"' +
+    (prompt ? ' showInputMessage="1"' : '') +
+    ' showErrorMessage="1"' +
+    attribute('errorTitle', errorTitle) +
+    attribute('error', error) +
+    attribute('promptTitle', promptTitle) +
+    attribute('prompt', prompt) +
+    ' sqref="' +
+    validation.range +
+    '">' +
+    formula('formula1', validation.list ?? validation.formula1) +
+    formula('formula2', validation.list ? undefined : validation.formula2) +
+    '</dataValidation>'
+  );
+}
+
 function validationsXml(sheet: Sheet) {
   if (!sheet.validations.length) return '';
   return (
     '<dataValidations count="' +
     sheet.validations.length +
     '">' +
-    sheet.validations
-      .map(
-        (validation) =>
-          '<dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="' +
-          validation.range +
-          '"><formula1>' +
-          escapeXml(validation.list) +
-          '</formula1></dataValidation>',
-      )
-      .join('') +
+    sheet.validations.map(validationXml).join('') +
     '</dataValidations>'
   );
 }

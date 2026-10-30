@@ -22,7 +22,7 @@ export const reservasApi = {
     return escribir<Registration>({ metodo: 'POST', ruta: '/api/v1/reservas', cuerpo: input });
   },
 
-  /** La organización aprueba, rechaza o devuelve a revisión un pago tras verificar Bre-B. */
+  /** La organización aprueba o rechaza un pago tras verificar Bre-B; "Deshacer" lo regresa a su revisión anterior. */
   revisarPago(
     registrationId: string,
     paymentId: string,
@@ -59,14 +59,17 @@ export const reservasApi = {
     });
   },
 
-  async fijarCapacidad(value: number): Promise<Result<number>> {
-    const resultado = await escribir<{ capacity: number }>({
+  /** Fija los cupos de la carrera (uno por reserva) y los cupos del páramo (uno por persona). */
+  fijarCapacidad(
+    carrera: number,
+    paramo: number,
+  ): Promise<Result<{ capacity: number; paramo: number }>> {
+    return escribir<{ capacity: number; paramo: number }>({
       metodo: 'PUT',
       ruta: '/api/v1/admin/capacidad',
-      cuerpo: { capacity: value },
+      cuerpo: { capacity: carrera, paramo },
       admin: true,
     });
-    return resultado.ok ? { ok: true, data: resultado.data.capacity } : resultado;
   },
 
   /** Último día para inscribirse y para pagar el restante; lo cambia la organización. */

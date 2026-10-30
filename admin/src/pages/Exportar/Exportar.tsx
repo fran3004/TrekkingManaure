@@ -23,8 +23,8 @@ export default function Exportar() {
           </span>
           <h2>Libro de gestión</h2>
           <p>
-            Todo se calcula con fórmulas de Excel: si cambias una tarifa o la revisión de un pago,
-            el libro completo se actualiza.
+            Todo se calcula con fórmulas de Excel y trae filas amarillas para agregar inscripciones
+            y pagos a mano, con listas desplegables, ayudas y una columna que avisa si falta algo.
           </p>
           <label htmlFor="export-filter">Inscripciones a incluir</label>
           <select id="export-filter" value={exportar.filter} onChange={exportar.changeFilter}>
@@ -40,16 +40,12 @@ export default function Exportar() {
               </span>
             ))}
           </div>
-          <button
-            className="btn btn--primary btn--block"
-            onClick={exportar.download}
-            disabled={!exportar.canDownload}
-          >
+          <button className="btn btn--primary btn--block" onClick={exportar.download}>
             <Icon name="sheet" /> Descargar Excel (.xlsx)
           </button>
           <p className="admin-notice">
             El libro incluye todas las reservas registradas en el servidor, sin importar desde qué
-            equipo se hicieron.
+            equipo se hicieron. Lo que agregues en Excel no cambia la página.
           </p>
           <p role="status" className="admin-feedback">
             {exportar.feedback}
@@ -59,7 +55,7 @@ export default function Exportar() {
           <div className="admin-panel-head">
             <div>
               <h2>Qué trae el libro</h2>
-              <p>Seis hojas conectadas entre sí</p>
+              <p>{exportar.sheetsLabel}</p>
             </div>
             <span className="admin-pill">.xlsx</span>
           </div>
