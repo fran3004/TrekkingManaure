@@ -1,6 +1,5 @@
 import Icon from '../../../../shared/components/Icon';
 import { caracteristicas } from '../../data/evento/caracteristicas';
-import './Evento.css';
 
 export default function Evento() {
   return (

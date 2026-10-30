@@ -5,7 +5,6 @@ import {
   formatearAltura,
   formatearTemp,
 } from '../../utils/seguridad/perfilTemperatura';
-import './PerfilTemperatura.css';
 
 export default function PerfilTemperatura() {
   const { perfil, paradas, activo, alMover, alSalir, distanciaKm, inicio, paramo, fuente } =

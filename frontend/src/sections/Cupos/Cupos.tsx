@@ -1,6 +1,5 @@
 import Icon from '../../../../shared/components/Icon';
 import { useCupos } from '../../hooks';
-import './Cupos.css';
 
 export default function Cupos() {
   const view = useCupos();

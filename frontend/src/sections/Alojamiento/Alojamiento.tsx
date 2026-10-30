@@ -1,7 +1,6 @@
 import type { Estadia } from '../../types/reserva';
 import Icon from '../../../../shared/components/Icon';
 import { useAlojamiento } from '../../hooks';
-import './Alojamiento.css';
 
 export default function Alojamiento({ onSelect }: { onSelect: (value: Estadia) => void }) {
   const estadias = useAlojamiento(onSelect);

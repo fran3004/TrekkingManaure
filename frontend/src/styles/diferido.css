@@ -1,0 +1,24 @@
+/*
+ * CSS de las secciones bajo la portada. index.html lo enlaza al final del <body>, después del
+ * contenido pre-renderizado: no bloquea el primer pintado y no se descarga junto con el CSS en línea
+ * de la primera pantalla. Esas secciones usan content-visibility (ver styles/global.css), así que
+ * no se ven ni se maquetan antes de que llegue esta hoja.
+ *
+ * Por eso estos componentes no importan su propio .css: si una sección pasa a verse en la primera
+ * pantalla, su import vuelve al componente y sale de esta lista.
+ */
+@import '../sections/Evento/Evento.css';
+@import '../sections/Cupos/Cupos.css';
+@import '../sections/Kit/Kit.css';
+@import '../sections/Costos/Costos.css';
+@import '../sections/Extras/Extras.css';
+@import '../sections/Alojamiento/Alojamiento.css';
+@import '../sections/Seguridad/Seguridad.css';
+@import '../sections/Seguridad/PerfilTemperatura.css';
+@import '../sections/Galeria/Galeria.css';
+@import '../components/ui/Calendario/Calendario.css';
+@import '../sections/Reserva/Reserva.css';
+@import '../sections/Reserva/components/ResumenReserva.css';
+@import '../sections/Reserva/components/ResumenModal.css';
+@import '../sections/Aliados/Aliados.css';
+@import './secciones.css';

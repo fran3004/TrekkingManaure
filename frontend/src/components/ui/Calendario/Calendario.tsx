@@ -1,6 +1,5 @@
 import Icon from '../../../../../shared/components/Icon';
 import { useCalendario } from '../../../hooks';
-import './Calendario.css';
 
 type Props = {
   selected: string;

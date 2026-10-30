@@ -1,7 +1,6 @@
 import Icon from '../../../../../shared/components/Icon';
 import { useResumenModal } from '../../../hooks';
 import type { FilaResumen, ResumenReservaTexto } from '../../../types/reserva';
-import './ResumenModal.css';
 
 type Props = {
   resumen: ResumenReservaTexto;

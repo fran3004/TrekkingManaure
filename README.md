@@ -27,6 +27,11 @@ npm run dev --prefix frontend
 
 El sitio y el panel son dos páginas: `frontend/index.html` y `frontend/admin.html`. Al publicar, el hosting debe responder `admin.html` para `/admin`; la configuración de nginx de este repositorio ya lo hace (y `vite`/`vite preview` también).
 
+Rendimiento del sitio (detalles en `frontend/vite.config.ts`):
+
+- **Pre-renderizado**: al compilar, `src/prerender.tsx` genera el HTML del sitio dentro de `#root`, así la página se ve antes de que llegue el JavaScript. En el navegador, `src/main.tsx` usa `render` del núcleo de Preact, que reutiliza ese HTML. Por eso el render no puede leer `window`, `document` ni `localStorage`: eso va en efectos o detrás de `typeof window !== 'undefined'`.
+- **CSS en dos partes**: el de la primera pantalla va dentro del HTML; el de las secciones de abajo vive en `src/styles/diferido.css` (esos componentes no importan su `.css`) y se enlaza al final del `<body>`.
+
 ## Producción
 
 ```bash

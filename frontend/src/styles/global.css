@@ -37,24 +37,6 @@
   .cupo-card {
     max-width: 460px;
   }
-  .features {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .kit-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .costos-grid {
-    grid-template-columns: 1fr;
-  }
-  .cupos-wrap {
-    grid-template-columns: 1fr;
-  }
-  .reserva-grid {
-    grid-template-columns: 1fr;
-  }
-  .summary {
-    position: static;
-  }
   .logo-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -95,10 +77,6 @@
   .nav__actions .btn {
     display: none;
   }
-  .stay-grid,
-  .safety-grid {
-    grid-template-columns: 1fr;
-  }
   .footer-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -114,16 +92,6 @@
   .hero__actions .btn {
     flex: 1;
   }
-  .extras {
-    grid-template-columns: 1fr;
-  }
-  .choice-grid,
-  .fields {
-    grid-template-columns: 1fr;
-  }
-  .split {
-    grid-template-columns: 1fr 1fr;
-  }
   .logo-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -133,15 +101,8 @@
   .marquee span {
     font-size: 0.95rem;
   }
-  .cal-day {
-    font-size: 0.7rem;
-  }
 }
 @media (max-width: 420px) {
-  .features,
-  .kit-grid {
-    grid-template-columns: 1fr;
-  }
   .logo-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -165,91 +126,6 @@
 .nav__mobile-reserva {
   display: none;
 }
-.cupos-big__num > small {
-  font-family: var(--textos);
-  font-size: 0.3em;
-  letter-spacing: 0.03em;
-  color: rgba(253, 248, 223, 0.5);
-}
-.cupos-title {
-  font-size: clamp(1.9rem, 4.2vw, 3rem);
-}
-.cupos-big__legend {
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-}
-.companion-toggle {
-  margin-top: 0.9rem;
-}
-.calendar-hint {
-  margin-top: 0.6rem;
-}
-.form-submit {
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-.terms-toggle {
-  margin-bottom: 1rem;
-}
-.conditions-link {
-  color: rgba(253, 248, 223, 0.6);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-align: left;
-  font-size: 0.68rem;
-}
-.form-note {
-  text-align: center;
-  margin-top: 0.7rem;
-}
-.form-error {
-  font-size: 0.73rem;
-  color: #ffad94;
-  margin-top: 0.7rem;
-}
-.form-error:empty {
-  display: none;
-}
-.summary__payments {
-  font-size: 0.7rem;
-}
-.cal-head {
-  gap: 0.8rem;
-  flex-wrap: wrap;
-}
-.cal-head strong {
-  text-transform: capitalize;
-}
-.cal-legend .legend-payment {
-  background: var(--dorado);
-}
-.cal-legend .legend-event {
-  background: rgba(211, 41, 15, 0.6);
-}
-.cal-legend .legend-unavailable {
-  background: rgba(253, 248, 223, 0.18);
-}
-.drop:focus-within {
-  border-color: var(--dorado);
-  outline: 2px solid var(--dorado);
-  outline-offset: 4px;
-}
-.costos-grid > *,
-.reserva-grid > * {
-  min-width: 0;
-}
-.stay > * {
-  position: relative;
-  z-index: 1;
-}
-.stay .stay__tag {
-  position: absolute;
-}
-.mini-choice__text {
-  overflow-wrap: anywhere;
-}
-
 @media (max-width: 900px) {
   .nav__links .nav__mobile-reserva {
     display: block;
@@ -263,20 +139,6 @@
   }
   .hero__facts .fact {
     align-items: flex-start;
-  }
-  .summary__channels {
-    gap: 0.65rem;
-    flex-wrap: wrap;
-  }
-  .summary .sum-row strong {
-    white-space: normal;
-    text-align: right;
-  }
-  .reserva-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .stay__tag {
-    font-size: 0.5rem;
   }
 }
 

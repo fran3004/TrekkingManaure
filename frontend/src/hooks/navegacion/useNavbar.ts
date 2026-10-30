@@ -4,7 +4,10 @@ import { classNames } from '../../utils/comun/classNames';
 
 export function useNavbar() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(window.scrollY > 20);
+  // Al pre-renderizar no hay ventana: la barra empieza sin scroll.
+  const [scrolled, setScrolled] = useState(
+    () => typeof window !== 'undefined' && window.scrollY > 20,
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);

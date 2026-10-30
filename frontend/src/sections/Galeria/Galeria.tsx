@@ -3,7 +3,6 @@ import Icon from '../../../../shared/components/Icon';
 import Modal from '../../../../shared/components/Modal';
 import { presets } from '../../../../shared/data/imagenes';
 import { useGaleria } from '../../hooks';
-import './Galeria.css';
 
 export default function Galeria() {
   const gallery = useGaleria();

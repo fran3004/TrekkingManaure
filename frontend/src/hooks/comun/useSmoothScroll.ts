@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import 'lenis/dist/lenis.css';
 import { usarLenis } from '../../utils/comun/desplazamiento';
 
 // Lenis suaviza la rueda del ratón; en pantallas táctiles no cambia nada, así que solo se carga en
@@ -17,7 +16,11 @@ export function useSmoothScroll() {
 
     const cargar = async () => {
       PRIMER_USO.forEach((evento) => window.removeEventListener(evento, cargar));
-      const { default: Lenis } = await import('lenis');
+      // Su CSS viaja con él: no ocupa espacio en el CSS de la primera pantalla.
+      const [{ default: Lenis }] = await Promise.all([
+        import('lenis'),
+        import('lenis/dist/lenis.css'),
+      ]);
       if (cancelado) return;
       // Las anclas las maneja useAnclas, que corrige la posición al terminar.
       const lenis = new Lenis({

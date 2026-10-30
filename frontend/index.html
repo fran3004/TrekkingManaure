@@ -174,16 +174,20 @@
         ]
       }
     </script>
+    <!-- Sin JavaScript no corren las animaciones de aparición: el contenido se muestra directo. -->
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
+    <!-- Al compilar se llena con el HTML del sitio (prerender() en src/prerender.tsx). -->
     <div id="root"></div>
-    <noscript>
-      <h1>Trekking Desafío Perijá 13K</h1>
-      <p>
-        13 km por la Serranía del Perijá con llegada al páramo, en Manaure, Cesar. 28 y 29 de
-        noviembre de 2026. Activa JavaScript para ver el recorrido, los precios y reservar tu cupo.
-      </p>
-    </noscript>
+    <!-- Aquí el build enlaza la hoja de las secciones bajo la portada (ver vite.config.ts). -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

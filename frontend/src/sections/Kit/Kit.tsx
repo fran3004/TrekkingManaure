@@ -1,6 +1,5 @@
 import Icon from '../../../../shared/components/Icon';
 import { elementosKit } from '../../data/kit/incluye';
-import './Kit.css';
 
 export default function Kit() {
   return (

@@ -1,7 +1,6 @@
 import Icon from '../../../../../shared/components/Icon';
 import { useResumenReserva } from '../../../hooks';
 import type { Cotizacion, Estadia } from '../../../types/reserva';
-import './ResumenReserva.css';
 
 type Props = {
   stay: Estadia;

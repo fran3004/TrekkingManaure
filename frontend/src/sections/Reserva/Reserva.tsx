@@ -13,7 +13,6 @@ import CuposAgotados from './components/CuposAgotados';
 import ResumenModal from './components/ResumenModal';
 import Terminos from './components/Terminos';
 import Condiciones from './components/Condiciones';
-import './Reserva.css';
 
 export default function Reserva({
   stay,

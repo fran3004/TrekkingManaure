@@ -1,7 +1,6 @@
 import Icon from '../../../../shared/components/Icon';
 import { abrigoNecesario, medidasSeguridad } from '../../data/seguridad/medidas';
 import PerfilTemperatura from './PerfilTemperatura';
-import './Seguridad.css';
 
 export default function Seguridad() {
   return (

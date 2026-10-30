@@ -1,7 +1,6 @@
 import Extras from '../Extras';
 import Icon from '../../../../shared/components/Icon';
 import { useCostos } from '../../hooks';
-import './Costos.css';
 
 export default function Costos() {
   const costs = useCostos();

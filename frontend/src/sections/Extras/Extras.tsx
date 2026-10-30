@@ -1,7 +1,6 @@
 import Icon from '../../../../shared/components/Icon';
 import CloudImage from '../../../../shared/components/CloudImage';
 import { useExtras } from '../../hooks';
-import './Extras.css';
 
 export default function Extras() {
   const { actividades, hotel } = useExtras();

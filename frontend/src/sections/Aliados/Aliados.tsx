@@ -1,7 +1,6 @@
 import CloudImage from '../../../../shared/components/CloudImage';
 import { presets } from '../../../../shared/data/imagenes';
 import { useMarquesinaAliados } from '../../hooks';
-import './Aliados.css';
 
 export default function Aliados() {
   const marquee = useMarquesinaAliados();
