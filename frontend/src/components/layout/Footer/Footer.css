@@ -76,3 +76,19 @@ footer {
   height: 30px;
   stroke-width: 1.7;
 }
+
+.footer-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(253, 248, 223, 0.75);
+  transition: color 0.2s;
+}
+.footer-admin:hover,
+.footer-admin:focus-visible {
+  color: var(--dorado);
+}
+.footer-admin .ico {
+  width: 14px;
+  height: 14px;
+}

@@ -55,7 +55,12 @@ export default function Footer() {
         </div>
         <div className="footer-bottom">
           <span>© 2026 {evento.nombre}. Todos los derechos reservados.</span>
-          <span>Reservas gestionadas por el equipo organizador</span>
+          <span>
+            Reservas gestionadas por el equipo organizador ·{' '}
+            <a className="footer-admin" href="/admin">
+              <Icon name="lock" /> Administración
+            </a>
+          </span>
         </div>
       </div>
     </footer>
