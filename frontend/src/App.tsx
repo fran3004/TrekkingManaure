@@ -2,11 +2,12 @@ import { Navbar, Footer } from './components';
 import { Home } from './pages';
 import Modal from '../../shared/components/Modal';
 import Icon from '../../shared/components/Icon';
-import { useContacto, useSmoothScroll } from './hooks';
+import { useAnclas, useContacto, useSmoothScroll } from './hooks';
 
 export default function App() {
   const contact = useContacto();
   useSmoothScroll();
+  useAnclas();
 
   return (
     <>

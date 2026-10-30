@@ -1,6 +1,7 @@
 export { useMarquesinaAliados } from './aliados/useMarquesinaAliados';
 export { useAlojamiento } from './alojamiento/useAlojamiento';
 export { useCalendario } from './calendario/useCalendario';
+export { useAnclas } from './comun/useAnclas';
 export { useSmoothScroll } from './comun/useSmoothScroll';
 export { useContacto } from './contacto/useContacto';
 export { useCostos } from './costos/useCostos';

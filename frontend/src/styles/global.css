@@ -279,3 +279,86 @@
     font-size: 0.5rem;
   }
 }
+
+/*
+ * Rendimiento: las secciones bajo la portada no se maquetan ni se pintan hasta acercarse a la
+ * pantalla. Mientras tanto ocupan una altura estimada (la real medida en móvil y en PC); con `auto`,
+ * después de pintarse una vez recuerdan su altura verdadera. Las anclas corrigen la posición al
+ * llegar (utils/comun/desplazamiento.ts). La portada y la cinta superior quedan fuera: siempre se ven.
+ * Los modales usan <dialog> en la capa superior, así que la contención no los recorta.
+ */
+#evento,
+#cupos,
+#incluye,
+#costos,
+#estadia,
+#seguridad,
+#galeria,
+#reserva,
+#aliados,
+body > #root footer {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto var(--alto-estimado, 1000px);
+}
+#evento {
+  --alto-estimado: 1145px;
+}
+#cupos {
+  --alto-estimado: 987px;
+}
+#incluye {
+  --alto-estimado: 1066px;
+}
+#costos {
+  --alto-estimado: 3120px;
+}
+#estadia {
+  --alto-estimado: 1654px;
+}
+#seguridad {
+  --alto-estimado: 2138px;
+}
+#galeria {
+  --alto-estimado: 2151px;
+}
+#reserva {
+  --alto-estimado: 1939px;
+}
+#aliados {
+  --alto-estimado: 352px;
+}
+body > #root footer {
+  --alto-estimado: 893px;
+}
+@media (min-width: 901px) {
+  #evento {
+    --alto-estimado: 704px;
+  }
+  #cupos {
+    --alto-estimado: 615px;
+  }
+  #incluye {
+    --alto-estimado: 631px;
+  }
+  #costos {
+    --alto-estimado: 1774px;
+  }
+  #estadia {
+    --alto-estimado: 938px;
+  }
+  #seguridad {
+    --alto-estimado: 1181px;
+  }
+  #galeria {
+    --alto-estimado: 1184px;
+  }
+  #reserva {
+    --alto-estimado: 1044px;
+  }
+  #aliados {
+    --alto-estimado: 509px;
+  }
+  body > #root footer {
+    --alto-estimado: 359px;
+  }
+}

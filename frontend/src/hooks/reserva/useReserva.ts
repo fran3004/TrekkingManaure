@@ -15,7 +15,7 @@ import {
   type PreEventHotel,
 } from '../../../../shared/reservas';
 import { contacto } from '../../../../shared/config';
-import { irASeccion } from '../../utils/comun/irASeccion';
+import { irASeccion } from '../../utils/comun/desplazamiento';
 import { buildMessage, whatsappLink } from '../../utils/reserva/mensaje';
 import { ESTADO_VACIO, leerBorrador } from '../../utils/reserva/borrador';
 import { buildNewRegistration } from '../../utils/reserva/nuevaReserva';

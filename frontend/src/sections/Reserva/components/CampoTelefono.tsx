@@ -69,7 +69,7 @@ export default function CampoTelefono({
                 className="tel__opcion"
                 onClick={opcion.elegir}
               >
-                <img className="tel__bandera" alt="" loading="lazy" {...opcion.bandera} />
+                <img className="tel__bandera" alt="" {...opcion.bandera} />
                 <span className="tel__nombre">{opcion.nombre}</span>
                 <span className="tel__indicativo">{opcion.indicativo}</span>
               </button>
