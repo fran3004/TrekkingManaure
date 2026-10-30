@@ -18,8 +18,9 @@ export const aliadoId = (nombre: string) => `${RAIZ}/aliados/${nombre}`;
 
 // Anchos pensados para el tamaño real en pantalla (móvil y PC) y pantallas de alta densidad.
 export const presets = {
+  // Precargada desde frontend/index.html: si cambian estos anchos o sizes, actualizar allí también.
   portada: {
-    widths: [640, 960, 1280, 1776],
+    widths: [480, 640, 750, 960, 1280, 1776],
     sizes: '(max-width: 1024px) 100vw, 68vw',
   },
   galeriaMiniatura: {

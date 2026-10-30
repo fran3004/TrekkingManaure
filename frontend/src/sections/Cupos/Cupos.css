@@ -210,5 +210,8 @@
 .cupos-big__estado--agotado .dot-live {
   background: var(--naranja);
   box-shadow: 0 0 0 4px rgba(232, 88, 28, 0.2);
+}
+.cupos-big__estado--agotado .dot-live::after {
   animation: none;
+  opacity: 0;
 }

@@ -13,8 +13,8 @@
   --musgo: #3e7a2b;
   --linea: rgba(242, 193, 78, 0.22);
   --sombra: 0 24px 60px rgba(0, 0, 0, 0.45);
-  --titulos: 'Bebas Neue', 'Oswald', sans-serif;
-  --textos: 'Poppins', 'Inter', system-ui, sans-serif;
+  --titulos: 'Bebas Neue', 'Bebas Neue Respaldo', 'Oswald', sans-serif;
+  --textos: 'Poppins', 'Poppins Respaldo', 'Inter', system-ui, sans-serif;
   --radio: 18px;
   --max: 1180px;
 }

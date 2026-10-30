@@ -62,6 +62,62 @@
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://res.cloudinary.com" />
 
+    <!--
+      Precargas de la portada: el navegador las pide junto con el JavaScript en vez de esperar a
+      que React pinte la página. Las cinco fuentes (unos 46 KB) se usan en la primera pantalla y
+      llegan antes que el texto, así no hay cambio de fuente. La imagen debe coincidir con
+      presets.portada (shared/data/imagenes.ts) y las fuentes con shared/styles/fonts.css.
+    -->
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      imagesrcset="
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_480/f_auto/q_auto/trekking-manaure/portada/portada-fondo   480w,
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_640/f_auto/q_auto/trekking-manaure/portada/portada-fondo   640w,
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_750/f_auto/q_auto/trekking-manaure/portada/portada-fondo   750w,
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_960/f_auto/q_auto/trekking-manaure/portada/portada-fondo   960w,
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_1280/f_auto/q_auto/trekking-manaure/portada/portada-fondo 1280w,
+        https://res.cloudinary.com/meoo7p5s/image/upload/c_limit,w_1776/f_auto/q_auto/trekking-manaure/portada/portada-fondo 1776w
+      "
+      imagesizes="(max-width: 1024px) 100vw, 68vw"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/bebas-neue-400-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-400-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-500-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-600-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/poppins-700-latin.woff2"
+      crossorigin
+    />
+
     <!-- Datos estructurados: nombre del sitio y ficha del evento para los buscadores. -->
     <script type="application/ld+json">
       {
