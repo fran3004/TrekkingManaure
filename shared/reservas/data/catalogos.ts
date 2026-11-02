@@ -7,14 +7,14 @@ export const tiposDocumento = ['CC', 'CE', 'TI', 'RC', 'Pasaporte', 'PPT'] as co
  * Formato de cada tipo de documento, tope de caracteres al escribir y edades que admite. Todos son
  * numéricos salvo el pasaporte. Los patrones y las ayudas son los mismos del catálogo del backend
  * (tabla tipo_documento): los mensajes de error deben coincidir.
- * CC de 8 a 10 dígitos sin cero inicial y solo para mayores de edad; TI de 7 a 18 años (quien acaba de
+ * CC de 6 a 11 dígitos sin cero inicial y solo para mayores de edad; TI de 7 a 18 años (quien acaba de
  * cumplir 18 puede tenerla todavía); RC para menores de 7 años.
  */
 export const reglasDocumento = {
   CC: {
-    patron: '[1-9][0-9]{7,9}',
-    ayuda: 'Entre 8 y 10 dígitos',
-    tope: 10,
+    patron: '[1-9][0-9]{5,10}',
+    ayuda: 'Entre 6 y 11 dígitos',
+    tope: 11,
     soloDigitos: true,
     edadMin: 18,
     edadMax: null,
