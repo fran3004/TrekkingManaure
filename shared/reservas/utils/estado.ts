@@ -73,6 +73,8 @@ function getPendingPayments(registration: Registration) {
 }
 
 export function getStatus(registration: Registration, today: string): RegistrationStatus {
+  // Una reserva vencida que la organización rechazó queda Rechazada con sus pagos aprobados.
+  if (registration.rejected) return 'Rechazado';
   const paid = getPaid(registration);
 
   if (paid > 0 && paid >= getTotal(registration)) return 'Pagado';

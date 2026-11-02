@@ -42,9 +42,6 @@ export default function Pagos() {
           <div className="review-toast" role="status">
             <Icon name="check" />
             <span>{review.toast}</span>
-            <button type="button" className="review-toast__undo" onClick={review.undo}>
-              Deshacer
-            </button>
             <button
               type="button"
               className="review-toast__close"

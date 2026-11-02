@@ -111,12 +111,17 @@ export type Registration = Person & {
    */
   guardianAuthorized: boolean;
   payments: Payment[];
+  /**
+   * La organización rechazó la reserva vencida: libera sus cupos aunque conserve los pagos
+   * aprobados, que son definitivos.
+   */
+  rejected: boolean;
 };
 
 /** Lo que envía el sitio público; el servicio asigna id, fecha, pago esperado y autorización. */
 export type NewRegistration = Omit<
   Registration,
-  'id' | 'createdAt' | 'payments' | 'guardianAuthorized'
+  'id' | 'createdAt' | 'payments' | 'guardianAuthorized' | 'rejected'
 >;
 
 /** El estado de una inscripción no se guarda: se deriva de sus pagos. */

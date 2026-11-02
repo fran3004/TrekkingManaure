@@ -562,6 +562,17 @@ const columnas: Columna<Fila>[] = [
     ),
   },
   {
+    name: 'Rechazada por vencer',
+    width: 12,
+    style: 'centro',
+    value: ({ registration }) => siNo(registration.rejected),
+    manual: { v: 'No', s: 'entradaCentro' },
+    ayuda: siNoLista(
+      'Rechazada por vencer',
+      'Sí si la organización rechazó la reserva vencida: queda Rechazada y libera sus cupos.',
+    ),
+  },
+  {
     name: 'Total',
     width: 13,
     style: 'moneda',
@@ -627,7 +638,9 @@ const columnas: Columna<Fila>[] = [
     width: 15,
     style: 'centro',
     formula: conCodigo(
-      'IF(AND(' +
+      'IF(' +
+        si('Rechazada por vencer') +
+        ',"Rechazado",IF(AND(' +
         r('Pagado') +
         '>0,' +
         r('Pagado') +
@@ -643,7 +656,7 @@ const columnas: Columna<Fila>[] = [
         r('Código') +
         ')=0,COUNTIFS(Pagos[Código],' +
         r('Código') +
-        ',Pagos[Revisión],"Por revisar")>0),"Por verificar","Rechazado")))',
+        ',Pagos[Revisión],"Por revisar")>0),"Por verificar","Rechazado"))))',
     ),
   },
   {

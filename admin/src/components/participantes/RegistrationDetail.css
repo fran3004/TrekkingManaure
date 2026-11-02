@@ -92,6 +92,48 @@
   font-size: 0.7rem !important;
 }
 
+/* Reserva vencida: ampliar plazo o rechazar, cada acción con confirmación. */
+.reg-overdue {
+  display: grid;
+  gap: 12px;
+}
+
+.reg-overdue__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.reg-overdue__row label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.64rem;
+  color: rgba(253, 248, 223, 0.65);
+}
+
+.reg-overdue__row select {
+  min-width: 120px;
+  padding: 11px 13px;
+  border: 1px solid rgba(253, 248, 223, 0.15);
+  border-radius: 10px;
+  background: var(--fondo-2);
+  color: var(--texto);
+  font-size: 0.75rem;
+}
+
+.reg-overdue__date {
+  align-self: center;
+  font-size: 0.7rem;
+  color: rgba(253, 248, 223, 0.75);
+}
+
+.reg-overdue__row small {
+  flex-basis: 100%;
+  font-size: 0.64rem;
+  color: rgba(253, 248, 223, 0.6);
+}
+
 .reg-section {
   margin-top: 24px;
 }

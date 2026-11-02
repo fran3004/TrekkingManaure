@@ -16,32 +16,16 @@ import {
 } from '../../../../shared/reservas';
 import { formatDate, formatMoney } from '../../../../shared/utils/format';
 import { useAdminUi } from '../../context/AdminUiContext';
+import { etiquetasFiltroPago, filtrosPago, type FiltroPago } from '../../data/pagos/filtros';
 import { motivosRechazo, otroMotivo } from '../../data/pagos/motivos';
 import { classNames } from '../../utils/comun/classNames';
 
-type Filter = PaymentReview | 'Todos';
+type Filter = FiltroPago;
 
 type Item = { registration: Registration; payment: Payment };
 
-/** Lo que la encargada decide sobre un pago por revisar; solo "Deshacer" lo regresa a revisión. */
+/** Lo que la encargada decide sobre un pago por revisar. Aprobar es definitivo. */
 type Decision = Exclude<PaymentReview, 'Por revisar'>;
-
-type LastAction = {
-  registrationId: string;
-  paymentId: string;
-  review: PaymentReview;
-  reason: string | null;
-  message: string;
-};
-
-const filters: Filter[] = ['Por revisar', 'Aprobado', 'Rechazado', 'Todos'];
-
-const filterLabels: Record<Filter, string> = {
-  'Por revisar': 'Por revisar',
-  Aprobado: 'Aprobados',
-  Rechazado: 'Rechazados',
-  Todos: 'Todos',
-};
 
 function byQueueOrder(a: Item, b: Item) {
   const pendingFirst =
@@ -62,6 +46,31 @@ function decisionMessage(name: string, review: Decision, nextStatus: string) {
       '. Se le envía un aviso por correo.'
     );
   return 'Pago de ' + name + ' rechazado. Se le envía un aviso por correo.';
+}
+
+/** Textos del "¿Estás seguro?" de cada decisión. */
+function confirmView(item: Item, review: Decision, reason: string, today: string) {
+  const { registration, payment } = item;
+  const name = fullName(registration);
+  const amount = formatMoney(payment.amount);
+  const next = getStatus(withReview(registration, payment.id, review), today);
+  if (review === 'Aprobado')
+    return {
+      title: '¿Aprobar este pago?',
+      lines: [
+        'Vas a aprobar ' + amount + ' de ' + name + '. La inscripción quedará como ' + next + '.',
+        'La aprobación es definitiva: no se puede deshacer. Al confirmar se le envía el correo.',
+      ],
+      confirmLabel: 'Sí, aprobar pago',
+    };
+  return {
+    title: '¿Rechazar este pago?',
+    lines: [
+      'Vas a rechazar ' + amount + ' de ' + name + ' por: ' + reason.replace(/\.+$/, '') + '.',
+      'La inscripción quedará como ' + next + '. Al confirmar se le envía el correo.',
+    ],
+    confirmLabel: 'Sí, rechazar pago',
+  };
 }
 
 function amountCheck(registration: Registration, payment: Payment) {
@@ -149,7 +158,8 @@ export function usePaymentReview() {
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
-  const [lastAction, setLastAction] = useState<LastAction | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<Decision | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -194,9 +204,11 @@ export function usePaymentReview() {
     }
   }
 
-  async function decide(review: Decision, rejectionReason: string | null = null) {
-    if (!current || busy) return;
+  /** Solo aquí se decide de verdad: después de que la encargada confirma en el diálogo. */
+  async function decide() {
+    if (!current || !confirming || busy) return;
     const { registration, payment } = current;
+    const review = confirming;
     const next = getStatus(withReview(registration, payment.id, review), today);
 
     setBusy(true);
@@ -204,61 +216,48 @@ export function usePaymentReview() {
       registration.id,
       payment.id,
       review,
-      rejectionReason,
+      review === 'Rechazado' ? rejection : null,
     );
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
       return;
     }
-    setLastAction({
-      registrationId: registration.id,
-      paymentId: payment.id,
-      review: payment.review,
-      reason: payment.rejectionReason,
-      message: decisionMessage(fullName(registration), review, next),
-    });
+    setToast(decisionMessage(fullName(registration), review, next));
+    setConfirming(null);
     setSelectedId(null);
     resetRejection();
   }
 
-  async function undo() {
-    if (!lastAction || busy) return;
-    setBusy(true);
-    const result = await reservasApi.revisarPago(
-      lastAction.registrationId,
-      lastAction.paymentId,
-      lastAction.review,
-      lastAction.reason,
-    );
-    setBusy(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setSelectedId(lastAction.paymentId);
-    if (filter !== 'Todos' && filter !== lastAction.review) setFilter(lastAction.review);
-    setLastAction(null);
+  function ask(review: Decision) {
+    if (!current || busy) return;
+    setError('');
+    setConfirming(review);
   }
 
   function confirmReject(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (rejection) decide('Rechazado', rejection);
+    if (rejection) ask('Rechazado');
+  }
+
+  function cancelConfirm() {
+    if (busy) return;
+    setError('');
+    setConfirming(null);
   }
 
   return {
     pendingLabel: count('Por revisar') + ' por revisar · ' + formatMoney(pendingTotal),
-    filters: filters.map((value) => ({
+    filters: filtrosPago.map((value) => ({
       value,
-      label: filterLabels[value],
+      label: etiquetasFiltroPago[value],
       count: count(value),
       pressed: filter === value,
       className: classNames(filter === value && 'is-active'),
     })),
     selectFilter,
-    toast: lastAction?.message ?? null,
-    undo,
-    dismissToast: () => setLastAction(null),
+    toast,
+    dismissToast: () => setToast(null),
     isEmpty: !current,
     emptyTitle: filter === 'Por revisar' ? 'Todo al día' : 'Sin pagos en esta vista',
     emptyText:
@@ -302,7 +301,13 @@ export function usePaymentReview() {
     error,
     busy,
     verifyText: 'Confirma en la llave Bre-B que el dinero llegó antes de aprobar.',
-    approve: () => decide('Aprobado'),
+    approve: () => ask('Aprobado'),
+    confirm:
+      current && confirming
+        ? { open: true, ...confirmView(current, confirming, rejection, today) }
+        : { open: false, title: '', lines: [] as string[], confirmLabel: '' },
+    confirmDecision: decide,
+    cancelConfirm,
     footLabel: items.length + ' pagos en esta vista · los más antiguos primero',
     detailOpen: detailOpen && !!current,
     detailTitle: current ? fullName(current.registration) : 'Inscripción',

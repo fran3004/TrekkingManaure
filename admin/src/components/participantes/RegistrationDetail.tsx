@@ -1,4 +1,5 @@
 import './RegistrationDetail.css';
+import ConfirmModal from '../../../../shared/components/ConfirmModal';
 import Icon from '../../../../shared/components/Icon';
 import { useRegistrationDetail, type RunnerView } from '../../hooks';
 import StatusBadge from '../comun/StatusBadge';
@@ -90,11 +91,54 @@ export default function RegistrationDetail({
           </span>
         </label>
       )}
-      {detail.overdue && (
-        <p className="reg-alert">
-          No se registró el saldo en la fecha acordada. El kit puede liberarse para otra persona.
-        </p>
+      {detail.overdueActions && (
+        <section className="reg-overdue" aria-label="Reserva vencida">
+          <p className="reg-alert">
+            No se registró el saldo en la fecha acordada. Si la persona te explica por WhatsApp,
+            amplíale el plazo para poder registrar su pago, o rechaza la reserva para liberar su
+            cupo.
+          </p>
+          <div className="reg-overdue__row">
+            <label>
+              Ampliar plazo
+              <select
+                value={detail.overdueActions.selectedDays}
+                onChange={detail.overdueActions.changeDays}
+                disabled={detail.overdueActions.saving}
+              >
+                {detail.overdueActions.days.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="reg-overdue__date">
+              Nueva fecha: <strong>{detail.overdueActions.newDate}</strong>
+            </span>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={detail.overdueActions.extend}
+              disabled={detail.overdueActions.saving}
+            >
+              <Icon name="calendar" /> Ampliar plazo
+            </button>
+          </div>
+          <div className="reg-overdue__row">
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={detail.overdueActions.reject}
+              disabled={!detail.overdueActions.canReject || detail.overdueActions.saving}
+            >
+              <Icon name="close" /> Rechazar reserva
+            </button>
+            {detail.overdueActions.rejectHint && <small>{detail.overdueActions.rejectHint}</small>}
+          </div>
+        </section>
       )}
+      {detail.rejectedText && <p className="reg-alert">{detail.rejectedText}</p>}
 
       <section className="reg-section">
         <h3>Corredores</h3>
@@ -190,6 +234,20 @@ export default function RegistrationDetail({
           {detail.error}
         </p>
       )}
+
+      <ConfirmModal
+        open={detail.confirm.open}
+        title={detail.confirm.title}
+        confirmLabel={detail.confirm.confirmLabel}
+        busy={detail.confirm.busy}
+        error={detail.confirm.error}
+        onConfirm={detail.confirm.accept}
+        onCancel={detail.confirm.cancel}
+      >
+        {detail.confirm.lines.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </ConfirmModal>
     </div>
   );
 }
