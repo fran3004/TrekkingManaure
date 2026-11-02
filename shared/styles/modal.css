@@ -99,3 +99,20 @@
   gap: 0.6rem;
   flex-wrap: wrap;
 }
+
+/* Confirmación: tarjeta angosta y botones a la derecha. */
+.confirm-modal .modal__card {
+  width: min(100%, 440px);
+}
+.confirm-modal__body {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.4rem 0 1.2rem;
+  line-height: 1.5;
+}
+.confirm-modal__body p {
+  margin: 0;
+}
+.confirm-modal .modal__actions {
+  justify-content: flex-end;
+}

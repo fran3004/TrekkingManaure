@@ -22,7 +22,7 @@ export const reservasApi = {
     return escribir<Registration>({ metodo: 'POST', ruta: '/api/v1/reservas', cuerpo: input });
   },
 
-  /** La organización aprueba o rechaza un pago tras verificar Bre-B; "Deshacer" lo regresa a su revisión anterior. */
+  /** La organización aprueba o rechaza un pago tras verificar Bre-B. La aprobación es definitiva. */
   revisarPago(
     registrationId: string,
     paymentId: string,
@@ -55,6 +55,25 @@ export const reservasApi = {
       metodo: 'PUT',
       ruta: '/api/v1/admin/reservas/' + encodeURIComponent(registrationId) + '/autorizacion-menor',
       cuerpo: { received },
+      admin: true,
+    });
+  },
+
+  /** Reserva vencida: nueva fecha para pagar el saldo, de 1 a 5 días desde hoy. */
+  ampliarPlazo(registrationId: string, days: number): Promise<Result<Registration>> {
+    return escribir<Registration>({
+      metodo: 'PUT',
+      ruta: '/api/v1/admin/reservas/' + encodeURIComponent(registrationId) + '/plazo',
+      cuerpo: { days },
+      admin: true,
+    });
+  },
+
+  /** Reserva vencida que no va a pagar: queda Rechazada y libera sus cupos. */
+  rechazarReserva(registrationId: string): Promise<Result<Registration>> {
+    return escribir<Registration>({
+      metodo: 'POST',
+      ruta: '/api/v1/admin/reservas/' + encodeURIComponent(registrationId) + '/rechazo',
       admin: true,
     });
   },

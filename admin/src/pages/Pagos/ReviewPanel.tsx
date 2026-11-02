@@ -1,3 +1,4 @@
+import ConfirmModal from '../../../../shared/components/ConfirmModal';
 import Icon from '../../../../shared/components/Icon';
 import StatusBadge from '../../components/comun/StatusBadge';
 import type { PaymentReviewView } from '../../hooks';
@@ -70,7 +71,7 @@ export default function ReviewPanel({ review }: { review: PaymentReviewView }) {
             <div>
               <small>Si rechazas</small>
               <StatusBadge status={panel.rejectedStatus} />
-              <span>Se le notifica por WhatsApp</span>
+              <span>Se le avisa por correo</span>
             </div>
           </div>
           <div className="review-actions">
@@ -149,6 +150,20 @@ export default function ReviewPanel({ review }: { review: PaymentReviewView }) {
       >
         Ver inscripción completa <Icon name="arrow" />
       </button>
+
+      <ConfirmModal
+        open={review.confirm.open}
+        title={review.confirm.title}
+        confirmLabel={review.confirm.confirmLabel}
+        busy={review.busy}
+        error={review.error}
+        onConfirm={review.confirmDecision}
+        onCancel={review.cancelConfirm}
+      >
+        {review.confirm.lines.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </ConfirmModal>
     </section>
   );
 }

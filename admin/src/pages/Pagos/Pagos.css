@@ -53,21 +53,6 @@
   flex: 1;
 }
 
-.review-toast__undo {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(253, 248, 223, 0.25);
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: var(--texto);
-  white-space: nowrap;
-}
-
-.review-toast__undo:hover {
-  border-color: var(--dorado);
-  color: var(--dorado);
-}
-
 .review-toast__close {
   display: grid;
   place-items: center;
